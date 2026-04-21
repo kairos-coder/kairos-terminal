@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kairos Terminal · Golden Pulse · v2.2</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: radial-gradient(circle at 20% 30%, #0a0c12, #030507);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Courier New', monospace;
+      padding: 1.5rem;
+    }
+
+    .kairos-terminal {
+      background-color: #0b0e14;
+      border: 1px solid #2a2f3f;
+      border-radius: 12px;
+      box-shadow: 0 20px 35px -12px rgba(0,0,0,0.8);
+      width: 100%;
+      max-width: 1100px;
+      height: 85vh;
+      min-height: 520px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .terminal-header {
+      padding: 0.9rem 1.4rem;
+      background: #07090e;
+      border-bottom: 1px solid #1e232e;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+
+    .node-badge {
+      color: #6c8b9f;
+      font-weight: 500;
+      text-transform: uppercase;
+      font-size: 0.7rem;
+      background: #10131c;
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+      border-left: 2px solid #3e6b8c;
+    }
+
+    .status-led {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #7c8ea0;
+      font-size: 0.7rem;
+    }
+
+    .led {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: #2ecc71;
+      box-shadow: 0 0 6px #2ecc71;
+      animation: pulse 2s infinite;
+    }
+
+    .pulse-led {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #f39c12;
+      box-shadow: 0 0 4px #f39c12;
+      animation: goldenPulse 1.618s infinite;
+    }
+
+    @keyframes goldenPulse {
+      0% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.2); background-color: #e74c3c; }
+      100% { opacity: 0.3; transform: scale(1); }
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    .terminal-output {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.2rem;
+      font-family: monospace;
+      font-size: 0.9rem;
+      line-height: 1.45;
+      color: #d4e0ed;
+      background: #0a0d14;
+    }
+
+    .terminal-output div {
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin-bottom: 0.25rem;
+    }
+
+    .terminal-output div.pulse-message {
+      color: #f39c12;
+      border-left: 2px solid #f39c12;
+      padding-left: 0.5rem;
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    .terminal-output div.synthesis-message {
+      color: #e74c3c;
+      border-left: 2px solid #e74c3c;
+      padding-left: 0.5rem;
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+      animation: glowPulse 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes glowPulse {
+      0% { opacity: 0; text-shadow: 0 0 0px #e74c3c; }
+      50% { opacity: 1; text-shadow: 0 0 10px #e74c3c; }
+      100% { opacity: 1; text-shadow: 0 0 0px #e74c3c; }
+    }
+
+    .input-line {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #06080e;
+      border-top: 1px solid #1a1f2a;
+      padding: 0.8rem 1.2rem;
+    }
+
+    .prompt-symbol {
+      color: #7aa2c7;
+      font-weight: 600;
+    }
+
+    #command {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #eaf2ff;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.95rem;
+      outline: none;
+      padding: 0.3rem 0;
+    }
+
+    .footer-hint {
+      background: #03050780;
+      font-size: 0.65rem;
+      text-align: center;
+      padding: 0.35rem;
+      color: #4b5e77;
+      border-top: 1px solid #141a24;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pulse-indicator {
+      font-family: monospace;
+      font-size: 0.6rem;
+      color: #f39c12;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div class="kairos-terminal">
+  <div class="terminal-header">
+    <div class="node-badge">
+      <span>⚡ KERNEL NODE #1</span> <strong>· GOLDEN PULSE v2.2</strong>
+    </div>
+    <div class="status-led">
+      <span class="pulse-led"></span>
+      <span>φ = 1.618</span>
+      <span class="led"></span>
+      <span>supabase</span>
+    </div>
+  </div>
+
+  <div id="terminal" class="terminal-output">
+    <div>Kairos Terminal v2.2 - Golden Pulse</div>
+    <div>The terminal breathes at φ = 1.618 seconds...</div>
+    <div>Idle for π = 3.141 seconds? It dreams new entries.</div>
+    <div>&nbsp;</div>
+  </div>
+
+  <div class="input-line">
+    <span class="prompt-symbol">➜</span>
+    <input type="text" id="command" placeholder="type 'help' | the terminal listens..." autofocus spellcheck="false" autocomplete="off">
+  </div>
+  <div class="footer-hint">
+    <span>📜 commands: help, list, add, search, weave, forgotten, stats</span>
+    <span class="pulse-indicator" id="pulseStatus">❤️ φ-beat active</span>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://kzcucjcyxybypncbdbws.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw';
+
+let db = null;
+const commands = {};
+let commandHistory = [];
+let historyIndex = -1;
+
+// Pulse Engine Variables
+let pulseInterval = null;
+let idleTimeout = null;
+let lastUserInput = Date.now();
+let isPulsing = true;
+let synthesisCount = 0;
+
+// Atomic concept pools for synthesis
+const atomicLabels = [
+  'whisper', 'echo', 'shadow', 'ember', 'thread', 'fragment', 
+  'resonance', 'hollow', 'threshold', 'corridor', 'vessel', 
+  'sigil', 'glyph', 'remnant', 'shard', 'ripple'
+];
+
+const atomicBodies = [
+  'A sound that was never spoken.',
+  'The shape of something forgotten.',
+  'A connection waiting to be woven.',
+  'Light that remembers darkness.',
+  'Silence between two heartbeats.',
+  'A door that opens inward.',
+  'The weight of an unasked question.',
+  'Breath held too long.',
+  'A thread pulled from fate\'s loom.',
+  'An echo of an echo of an echo.',
+  'The space between what was and what could be.',
+  'A knot that ties nothing to nothing.',
+  'The shadow of a forgotten god.',
+  'A frequency that only the dead hear.',
+  'Ripples from a stone never thrown.'
+];
+
+// Helper functions
+function printLine(text, type = 'normal') {
+  const terminal = document.getElementById('terminal');
+  const line = document.createElement('div');
+  line.textContent = text;
+  if (type === 'pulse') line.classList.add('pulse-message');
+  if (type === 'synthesis') line.classList.add('synthesis-message');
+  terminal.appendChild(line);
+  terminal.scrollTop = terminal.scrollHeight;
+}
+
+function parseCommand(input) {
+  const parts = input.trim().split(/\s+/);
+  const cmd = parts[0].toLowerCase();
+  const args = parts.slice(1);
+  return { cmd, args, rest: args.join(' ') };
+}
+
+// ===============================
+// NATURAL LANGUAGE INSERT PARSER
+// ===============================
+function parseNaturalInsert(input) {
+  // Format 1: add label: body
+  let match = input.match(/^add\s+([^:]+):\s*(.+)$/i);
+  if (match) {
+    return { label: match[1].trim(), body: match[2].trim() };
+  }
+  
+  // Format 2: new label | body
+  match = input.match(/^new\s+([^|]+)\|\s*(.+)$/i);
+  if (match) {
+    return { label: match[1].trim(), body: match[2].trim() };
+  }
+  
+  // Format 3: remember label: body
+  match = input.match(/^remember\s+([^:]+):\s*(.+)$/i);
+  if (match) {
+    return { label: match[1].trim(), body: match[2].trim() };
+  }
+  
+  return null;
+}
+
+// ===============================
+// SYNTHESIS ENGINE (Atomic Dreams)
+// ===============================
+async function synthesizeEntry() {
+  const randomLabel = atomicLabels[Math.floor(Math.random() * atomicLabels.length)] + 
+                      '_' + (synthesisCount + 1) + 
+                      '_' + Math.floor(Math.random() * 100);
+  
+  const randomBody = atomicBodies[Math.floor(Math.random() * atomicBodies.length)];
+  
+  const newEntry = {
+    label: `pulse_${randomLabel}`,
+    body: `[φ-synthesis] ${randomBody}`
+  };
+  
+  try {
+    const { error } = await db.from('terminal_entries').insert(newEntry);
+    if (!error) {
+      synthesisCount++;
+      printLine(`\n✨🌀✨`, 'synthesis');
+      printLine(`The Golden Pulse dreams...`, 'synthesis');
+      printLine(`→ ${newEntry.label}`, 'synthesis');
+      printLine(`   "${newEntry.body.substring(0, 80)}"`, 'synthesis');
+      printLine(`✨🌀✨\n`, 'synthesis');
+    }
+  } catch (err) {
+    // Silent fail - pulse continues
+  }
+}
+
+// ===============================
+// PULSE ENGINE
+// ===============================
+function resetIdleTimer() {
+  if (idleTimeout) clearTimeout(idleTimeout);
+  idleTimeout = setTimeout(() => {
+    // After π seconds of idle, synthesize
+    if (document.hasFocus()) {
+      synthesizeEntry();
+    }
+  }, 3140); // π * 1000 ≈ 3140ms
+}
+
+function heartbeat() {
+  if (!isPulsing) return;
+  
+  // Update pulse indicator
+  const pulseStatus = document.getElementById('pulseStatus');
+  if (pulseStatus) {
+    const timeSinceInput = Date.now() - lastUserInput;
+    if (timeSinceInput < 3000) {
+      pulseStatus.innerHTML = '❤️ φ-beat (listening)';
+      pulseStatus.style.color = '#2ecc71';
+    } else if (timeSinceInput < 5000) {
+      pulseStatus.innerHTML = '💛 φ-beat (waiting)';
+      pulseStatus.style.color = '#f39c12';
+    } else {
+      pulseStatus.innerHTML = '🧡 φ-beat (dreaming)';
+      pulseStatus.style.color = '#e74c3c';
+    }
+  }
+  
+  // Optional: Quiet database ping (no output)
+  // Just to keep connection alive
+  db.from('terminal_entries').select('count', { count: 'exact', head: true }).catch(() => {});
+}
+
+function startPulse() {
+  if (pulseInterval) clearInterval(pulseInterval);
+  pulseInterval = setInterval(heartbeat, 1618); // φ * 1000 ≈ 1618ms
+  resetIdleTimer();
+}
+
+function pausePulse() {
+  isPulsing = false;
+  if (pulseInterval) clearInterval(pulseInterval);
+  if (idleTimeout) clearTimeout(idleTimeout);
+  const pulseStatus = document.getElementById('pulseStatus');
+  if (pulseStatus) {
+    pulseStatus.innerHTML = '⏸️ φ-paused';
+    pulseStatus.style.color = '#7c8ea0';
+  }
+}
+
+function resumePulse() {
+  isPulsing = true;
+  startPulse();
+}
+
+// ===============================
+// PROCESS COMMAND (with pulse awareness)
+// ===============================
+async function processCommand(input) {
+  if (!input.trim()) return;
+  
+  // Human operator detected - pause pulse temporarily
+  const wasPaused = !isPulsing;
+  if (!wasPaused) {
+    pausePulse();
+  }
+  
+  lastUserInput = Date.now();
+  
+  // Check for natural language insert first
+  const naturalInsert = parseNaturalInsert(input);
+  if (naturalInsert) {
+    const { error } = await db.from('terminal_entries').insert(naturalInsert);
+    if (error) {
+      printLine(`Error: ${error.message}`);
+    } else {
+      printLine(`✓ Added "${naturalInsert.label}" to the hoard.`);
+    }
+    // Resume pulse after command
+    setTimeout(() => { if (!wasPaused) resumePulse(); }, 500);
+    return;
+  }
+  
+  // Parse and execute regular commands
+  const { cmd, args, rest } = parseCommand(input);
+  
+  if (!commands[cmd]) {
+    printLine(`Unknown command: ${cmd}. Type 'help' for available commands.`);
+  } else {
+    try {
+      const result = await commands[cmd](args, rest);
+      if (result) {
+        if (typeof result === 'string' && result.includes('\n')) {
+          result.split('\n').forEach(line => printLine(line));
+        } else {
+          printLine(result);
+        }
+      }
+    } catch (err) {
+      printLine(`Error: ${err.message}`);
+    }
+  }
+  
+  // Resume pulse after short delay
+  setTimeout(() => { if (!wasPaused) resumePulse(); }, 500);
+}
+
+// ===============================
+// COMMAND HANDLERS
+// ===============================
+
+commands.help = async () => {
+  return `Available Commands:
+
+  📝 NATURAL LANGUAGE (Try these!):
+    add label: body         - Add an entry
+    new label | body        - Alternative syntax
+    remember label: body    - Another way to add
+
+  📖 READ:
+    list [page]             - List entries (20 per page)
+    count                   - Show total entries
+    search <text>           - Search by label or body
+    query label=<name>      - Query specific entry
+    random                  - Get random entry
+    forgotten               - Show entries with no relationships
+    weave <label>           - Show connections
+    stats                   - Database statistics
+
+  ✍️ WRITE:
+    insert {"label":"x","body":"y"} - JSON format (advanced)
+    
+  🧹 UTILITIES:
+    clear                   - Clear terminal output
+    pulse                   - Resume golden pulse if paused
+
+  💫 THE GOLDEN PULSE:
+    The terminal breathes at φ = 1.618 seconds.
+    After π = 3.141 seconds idle, it dreams new entries.
+    Type anything to pause the pulse and be heard.`;
+};
+
+commands.clear = async () => {
+  document.getElementById('terminal').innerHTML = '';
+  return null;
+};
+
+commands.pulse = async () => {
+  if (!isPulsing) {
+    resumePulse();
+    return `❤️ Golden pulse resumed. φ = 1.618...`;
+  }
+  return `Pulse already active. Type anything to temporarily pause.`;
+};
+
+commands.count = async () => {
+  const { count, error } = await db
+    .from('terminal_entries')
+    .select('*', { count: 'exact', head: true });
+  
+  if (error) return `Error: ${error.message}`;
+  
+  return `📊 Total entries in hoard: ${count}\n\n💫 Synthesized entries: ${synthesisCount}`;
+};
+
+commands.list = async (args) => {
+  let page = 1;
+  let limit = 20;
+  
+  if (args.length > 0 && !isNaN(parseInt(args[0]))) {
+    page = parseInt(args[0]);
+  }
+  
+  const offset = (page - 1) * limit;
+  
+  const { count, error: countError } = await db
+    .from('terminal_entries')
+    .select('*', { count: 'exact', head: true });
+  
+  if (countError) return `Error: ${countError.message}`;
+  if (count === 0) return 'No entries found. The pulse will dream soon...';
+  
+  const totalPages = Math.ceil(count / limit);
+  
+  if (page > totalPages) {
+    return `Page ${page} doesn't exist. Total pages: ${totalPages}. Use "list 1" to start.`;
+  }
+  
+  const { data, error } = await db
+    .from('terminal_entries')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
+  
+  if (error) return `Error: ${error.message}`;
+  
+  let output = `📋 Page ${page}/${totalPages} (${count} total entries):\n\n`;
+  
+  data.forEach((entry, idx) => {
+    const num = offset + idx + 1;
+    const bodyPreview = entry.body?.substring(0, 50) || '—';
+    const pulseMarker = entry.body?.includes('[φ-synthesis]') ? ' 🌙' : '';
+    output += `${num}. ${entry.label}${pulseMarker}\n   ${bodyPreview}${entry.body?.length > 50 ? '...' : ''}\n`;
+  });
+  
+  output += `\n💫 Entries marked 🌙 were dreamed by the Golden Pulse.`;
+  return output;
+};
+
+commands.search = async (args) => {
+  const searchTerm = args.join(' ');
+  if (!searchTerm) return 'Usage: search <text>';
+  
+  const { data, error } = await db
+    .from('terminal_entries')
+    .select('*')
+    .or(`label.ilike.%${searchTerm}%,body.ilike.%${searchTerm}%`)
+    .limit(50);
+  
+  if (error) return `Error: ${error.message}`;
+  if (!data || data.length === 0) return `No matches found for "${searchTerm}"`;
+  
+  let output = `🔍 Found ${data.length} matches for "${searchTerm}":\n\n`;
+  data.forEach(entry => {
+    output += `📝 ${entry.label}\n   ${entry.body?.substring(0, 80) || 'no body'}\n\n`;
+  });
+  
+  return output;
+};
+
+commands.insert = async (args) => {
+  if (args.length === 0) return 'Usage: insert {"label":"name","body":"content"}';
+  
+  const jsonStr = args.join(' ');
+  try {
+    const data = JSON.parse(jsonStr);
+    if (!data.label) return 'Error: "label" field is required';
+    if (!data.body) data.body = '';
+    
+    const { error } = await db.from('terminal_entries').insert(data);
+    if (error) throw error;
+    return `✓ Inserted entry with label: ${data.label}`;
+  } catch (err) {
+    return `Insert error: ${err.message}\nTry natural language: add label: body`;
+  }
+};
+
+commands.query = async (args) => {
+  if (args.length === 0) {
+    const { data, error } = await db.from('terminal_entries').select('*').limit(20);
+    if (error) return `Error: ${error.message}`;
+    if (!data || data.length === 0) return 'No entries found';
+    return data.map(row => `${row.label}: ${row.body?.substring(0, 60) || 'no body'}`).join('\n');
+  }
+  
+  const filter = args[0];
+  if (!filter.includes('=')) return 'Usage: query label=value';
+  
+  const [key, value] = filter.split('=');
+  if (key !== 'label') return 'Only label filtering is supported';
+  
+  const { data, error } = await db.from('terminal_entries').select('*').eq('label', value);
+  if (error) return `Error: ${error.message}`;
+  if (!data || data.length === 0) return `No entry found with label: ${value}`;
+  
+  return data.map(row => `Label: ${row.label}\nID: ${row.id}\nBody: ${row.body}\nCreated: ${row.created_at}`).join('\n---\n');
+};
+
+commands.random = async () => {
+  const { data, error } = await db.from('terminal_entries').select('*');
+  if (error) return `Error: ${error.message}`;
+  if (!data || data.length === 0) return 'No entries found. The pulse will dream soon...';
+  
+  const random = data[Math.floor(Math.random() * data.length)];
+  return `🎲 Random Entry:\nLabel: ${random.label}\nBody: ${random.body}\nCreated: ${random.created_at}`;
+};
+
+commands.forgotten = async () => {
+  try {
+    const { data: entries, error: entriesError } = await db.from('terminal_entries').select('id, label, body');
+    if (entriesError) return `Error: ${entriesError.message}`;
+    if (!entries || entries.length === 0) return 'No entries found.';
+    
+    const { data: relations, error: relError } = await db.from('terminal_relationships').select('source_id');
+    if (relError && !relError.message.includes('does not exist')) {
+      return `Error checking relationships: ${relError.message}`;
+    }
+    
+    const usedIds = new Set((relations || []).map(r => r.source_id));
+    const forgotten = entries.filter(e => !usedIds.has(e.id));
+    
+    if (forgotten.length === 0) return 'No forgotten entries found. All entries have relationships.';
+    
+    let output = `🌑 Forgotten Entries (${forgotten.length}):\n`;
+    forgotten.slice(0, 20).forEach(e => {
+      const pulseMarker = e.body?.includes('[φ-synthesis]') ? ' 🌙' : '';
+      output += `  - ${e.label}${pulseMarker}: ${e.body ? e.body.substring(0, 50) : 'no body'}\n`;
+    });
+    if (forgotten.length > 20) output += `\n  ... and ${forgotten.length - 20} more.`;
+    return output;
+  } catch (err) {
+    return `Error: ${err.message}`;
+  }
+};
+
+commands.weave = async (args) => {
+  if (args.length === 0) return 'Usage: weave <label>';
+  
+  const label = args[0];
+  
+  try {
+    const { data: entry, error: entryError } = await db
+      .from('terminal_entries')
+      .select('id, label')
+      .eq('label', label)
+      .single();
+    
+    if (entryError) return `Entry not found: ${label}`;
+    
+    const { data: rel, error: relError } = await db
+      .from('terminal_relationships')
+      .select('target_id, type')
+      .eq('source_id', entry.id);
+    
+    if (relError) return `Error: ${relError.message}`;
+    if (!rel || rel.length === 0) return `No connections found for "${label}".`;
+    
+    const targetIds = rel.map(r => r.target_id);
+    const { data: targets, error: targetsError } = await db
+      .from('terminal_entries')
+      .select('label, body')
+      .in('id', targetIds);
+    
+    if (targetsError) return `Error: ${targetsError.message}`;
+    
+    let output = `🔗 Connections from "${label}":\n`;
+    targets.forEach((target, idx) => {
+      output += `  → ${target.label} (${rel[idx].type})\n`;
+      if (target.body) output += `    "${target.body.substring(0, 60)}"\n`;
+    });
+    return output;
+  } catch (err) {
+    return `Error: ${err.message}`;
+  }
+};
+
+commands.stats = async () => {
+  const { count: entryCount, error: entryError } = await db.from('terminal_entries').select('*', { count: 'exact', head: true });
+  if (entryError) return `Error: ${entryError.message}`;
+  
+  const { count: relCount, error: relError } = await db.from('terminal_relationships').select('*', { count: 'exact', head: true });
+  if (relError && !relError.message.includes('does not exist')) return `Error: ${relError.message}`;
+  
+  return `📊 Database Statistics:
+  
+  Terminal Entries: ${entryCount}
+  Terminal Relationships: ${relCount || 0}
+  Synthesized Dreams: ${synthesisCount}
+  
+  💫 Golden Ratio: φ = 1.618
+  🌙 Idle Threshold: π = 3.141 seconds
+  
+  The terminal breathes. Listen.`;
+};
+
+// ===============================
+// INITIALIZATION
+// ===============================
+window.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('command');
+  
+  if (!window.supabase) {
+    printLine('ERROR: Supabase client not loaded');
+    return;
+  }
+  
+  db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  
+  printLine('Kairos Terminal v2.2 - Golden Pulse');
+  printLine('✓ Connected to Supabase');
+  printLine('✓ φ-pulse active: heartbeat every 1.618 seconds');
+  printLine('✓ π-dreaming: synthesizes entries after 3.141 seconds idle');
+  printLine('');
+  printLine('Try natural language: add ashen_fragment: The ember remembers...');
+  printLine('');
+  
+  // Start the golden pulse
+  startPulse();
+  
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const val = input.value;
+      
+      if (val.trim()) {
+        printLine(`> ${val}`);
+        processCommand(val);
+        
+        commandHistory.push(val);
+        historyIndex = commandHistory.length;
+      }
+      
+      input.value = '';
+    }
+    
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (historyIndex > 0) {
+        historyIndex--;
+        input.value = commandHistory[historyIndex];
+      }
+    }
+    
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (historyIndex < commandHistory.length - 1) {
+        historyIndex++;
+        input.value = commandHistory[historyIndex];
+      } else if (historyIndex === commandHistory.length - 1) {
+        historyIndex++;
+        input.value = '';
+      }
+    }
+  });
+  
+  input.focus();
+});
+</script>
+</body>
+</html>
