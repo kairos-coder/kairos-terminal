@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kairos Terminal</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      background-color: #000000;
+      color: #c8c8c8;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      overflow: hidden;
+    }
+
+    #container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      padding: 20px 24px 16px;
+    }
+
+    #header {
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #2a2a2a;
+    }
+
+    #header .title {
+      color: #e8e8e8;
+      font-size: 13px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    #header .subtitle {
+      color: #505050;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      margin-top: 2px;
+    }
+
+    #terminal {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 0;
+      scrollbar-width: thin;
+      scrollbar-color: #2a2a2a #000000;
+    }
+
+    #terminal::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    #terminal::-webkit-scrollbar-track {
+      background: #000000;
+    }
+
+    #terminal::-webkit-scrollbar-thumb {
+      background: #2a2a2a;
+    }
+
+    .terminal-line {
+      padding: 1px 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .terminal-line.system {
+      color: #505050;
+    }
+
+    .terminal-line.output {
+      color: #c8c8c8;
+    }
+
+    .terminal-line.input-echo {
+      color: #888888;
+    }
+
+    .terminal-line.error {
+      color: #884444;
+    }
+
+    #input-row {
+      display: flex;
+      align-items: center;
+      padding-top: 10px;
+      border-top: 1px solid #1a1a1a;
+      gap: 8px;
+    }
+
+    #prompt {
+      color: #c8c8c8;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    #command {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #e8e8e8;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      caret-color: #c8c8c8;
+    }
+
+    #command::selection {
+      background: #2a2a2a;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="header">
+      <div class="title">Kairos Terminal</div>
+      <div class="subtitle">narrative operating system &mdash; v0.1.0</div>
+    </div>
+
+    <div id="terminal" role="log" aria-live="polite" aria-label="Terminal output">
+      <div class="terminal-line system">system: kairos initialized.</div>
+      <div class="terminal-line system">system: awaiting input.</div>
+    </div>
+
+    <div id="input-row">
+      <span id="prompt" aria-hidden="true">&gt;</span>
+      <input
+        id="command"
+        type="text"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+        aria-label="Command input"
+        placeholder=""
+      />
+    </div>
+  </div>
+</body>
+</html>
