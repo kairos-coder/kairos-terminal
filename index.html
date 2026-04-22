@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Kairos Terminal · Dream Weaver · v3.3</title>
+  <title>Kairos Terminal · Prime Chaos · v3.4</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -121,6 +121,15 @@
       border-radius: 20px;
     }
 
+    .prime-counter {
+      font-family: monospace;
+      font-size: 0.65rem;
+      background: #1a1f2a;
+      padding: 0.2rem 0.5rem;
+      border-radius: 20px;
+      color: #f39c12;
+    }
+
     .output {
       flex: 1;
       overflow-y: auto;
@@ -207,6 +216,7 @@
       .input-line { padding: 0.5rem 0.8rem; }
       #command { font-size: 0.8rem; }
       .badge { font-size: 0.55rem; }
+      .prime-counter { font-size: 0.55rem; }
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -214,11 +224,12 @@
 <body>
 <div class="terminal" id="terminalContainer">
   <div class="terminal-header">
-    <div class="badge">⚡ KAIROS · DREAM WEAVER v3.3</div>
+    <div class="badge">⚡ KAIROS · PRIME CHAOS v3.4</div>
     <div class="rhythm-indicator">
       <div class="pulse-beat" id="pulseBeat"></div>
       <span id="rhythmLabel">φ = 1.618s</span>
     </div>
+    <div class="prime-counter" id="primeCounter">🔢 0</div>
     <div class="spectrum" id="spectrumDots">
       <div class="spectrum-dot" style="background:#e8a87c"></div>
       <div class="spectrum-dot" style="background:#f4d03f"></div>
@@ -235,8 +246,9 @@
   </div>
 
   <div id="output" class="output">
-    <div>Kairos Terminal v3.3 — Dream Weaver</div>
+    <div>Kairos Terminal v3.4 — Prime Chaos</div>
     <div>Awake: φ = 1.618s · Dreaming: π = 3.14159s</div>
+    <div>Every prime pulse: A random god draws from the Well of Chaos</div>
     <div>&nbsp;</div>
     <div>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</div>
     <div>✈️ Hermes     1-10 words    → 4-8 Hz     (Infrared)</div>
@@ -252,19 +264,20 @@
 
   <div class="input-line">
     <span class="prompt">➜</span>
-    <input type="text" id="command" placeholder="add label: body | help | the terminal dreams..." autofocus spellcheck="false" autocomplete="off">
+    <input type="text" id="command" placeholder="add label: body | help | prime chaos awakens..." autofocus spellcheck="false" autocomplete="off">
   </div>
 
   <div class="footer">
-    <span>🏛️ Dreams weave hoard memories + chaos · No RANDOM() errors</span>
-    <span>⚡ v3.3</span>
+    <span>🏛️ 7 Divine Bands · Prime pulses = Chaos events</span>
+    <span>⚡ v3.4</span>
   </div>
 </div>
 
 <script>
 // ============================================================
-// KAIROS TERMINAL v3.3 - DREAM WEAVER
-// Fixed: No RANDOM() in Supabase queries, client-side shuffling
+// KAIROS TERMINAL v3.4 - PRIME CHAOS
+// Every prime pulse: Random god draws from Well of Chaos
+// 887 lines of divine chaos
 // ============================================================
 
 const SUPABASE_URL = 'https://kzcucjcyxybypncbdbws.supabase.co';
@@ -273,6 +286,54 @@ const SUPABASE_ANON_KEY = 'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw';
 let db = null;
 let commandHistory = [];
 let historyIndex = -1;
+
+// ============================================================
+// PRIME CHAOS ENGINE
+// ============================================================
+let universalPulse = 0;
+
+function isPrime(n) {
+    if (n < 2) return false;
+    for (let i = 2; i <= Math.sqrt(n); i++) {
+        if (n % i === 0) return false;
+    }
+    return true;
+}
+
+const CHAOS_GODS = ['hermes', 'apollo', 'hephaestus', 'demeter', 'poseidon', 'athena', 'zeus'];
+
+async function primeChaosEvent(pulseNumber) {
+    const randomGod = CHAOS_GODS[Math.floor(Math.random() * CHAOS_GODS.length)];
+    const godInfo = getBandInfo(randomGod);
+    
+    try {
+        const { data: words } = await db
+            .from('one_word_primitives')
+            .select('word')
+            .limit(30);
+        
+        if (words && words.length > 0) {
+            const shuffled = shuffleArray([...words]);
+            const selected = shuffled.slice(0, 3 + Math.floor(Math.random() * 3));
+            const chaosMessage = selected.map(w => w.word).join(' · ');
+            
+            printLine(`🔢 PRIME PULSE ${pulseNumber} — ${godInfo.icon} ${godInfo.name} draws from the Well:`, randomGod, true);
+            printLine(`   "${chaosMessage}"`, randomGod, true);
+        } else {
+            const shuffled = shuffleArray([...FALLBACK_WORDS]);
+            const selected = shuffled.slice(0, 4);
+            const chaosMessage = selected.join(' · ');
+            printLine(`🔢 PRIME PULSE ${pulseNumber} — ${godInfo.icon} ${godInfo.name} draws from the Well:`, randomGod, true);
+            printLine(`   "${chaosMessage}"`, randomGod, true);
+        }
+    } catch (err) {
+        const shuffled = shuffleArray([...FALLBACK_WORDS]);
+        const selected = shuffled.slice(0, 4);
+        const chaosMessage = selected.join(' · ');
+        printLine(`🔢 PRIME PULSE ${pulseNumber} — ${godInfo.icon} ${godInfo.name} draws from the Well:`, randomGod, true);
+        printLine(`   "${chaosMessage}"`, randomGod, true);
+    }
+}
 
 // ============================================================
 // DIVINE BANDS
@@ -404,6 +465,18 @@ const DualRhythm = {
     },
     
     async awakePulse() {
+        // Universal pulse counter increment
+        universalPulse++;
+        
+        // Update prime counter display
+        const primeCounter = document.getElementById('primeCounter');
+        if (primeCounter) primeCounter.innerHTML = `🔢 ${universalPulse}`;
+        
+        // PRIME CHAOS EVENT
+        if (isPrime(universalPulse)) {
+            await primeChaosEvent(universalPulse);
+        }
+        
         this.awakePulseCount++;
         this.updateUI();
         
@@ -411,7 +484,7 @@ const DualRhythm = {
         pulseBeat.style.transform = 'scale(1.3)';
         setTimeout(() => { if (pulseBeat) pulseBeat.style.transform = 'scale(1)'; }, 100);
         
-        // Silent ping - no error if fails
+        // Silent ping
         try {
             await db.from('terminal_entries').select('id', { head: true, count: 'exact' });
         } catch(e) { /* silent */ }
@@ -620,7 +693,7 @@ const commands = {};
 
 commands.help = async () => {
     return `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                  DREAM WEAVER — v3.3
+                  PRIME CHAOS — v3.4
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   ${'BAND'.padEnd(12)} ${'WORDS'.padEnd(10)} ${'FREQUENCY'.padEnd(12)} ${'LIGHT'}
@@ -635,10 +708,12 @@ commands.help = async () => {
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🌙 DREAM WEAVER (v3.3):
-  Dreams randomly combine EXISTING HOARD ENTRIES with ONE-WORD PRIMITIVES
-  No more RANDOM() errors — client-side shuffling
-  Fallback words always ensure dreams complete
+🔢 PRIME CHAOS:
+  Every prime pulse (1,2,3,5,7,11,13,17...):
+  A random god draws from the Well of Chaos
+  
+  Universal pulse counter resets on page refresh.
+  Each session has its own age.
 
 📝 COMMANDS:
   add <label>: <body>     → Entry claimed by its divine band
@@ -652,7 +727,7 @@ commands.help = async () => {
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 💫 The terminal breathes at φ. It dreams at π.
-   v3.3: Fixed Supabase RANDOM() errors. Dreams now flow.
+   Every prime pulse, chaos speaks through a random god.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
 };
 
@@ -743,7 +818,7 @@ commands.spectrum = async () => {
 commands.stats = async () => {
     const { count, error } = await db.from('terminal_entries').select('*', { count: 'exact', head: true });
     if (error) return `Error: ${error.message}`;
-    return `📊 Hoard Statistics\n\nTerminal Entries: ${count}\n\n🌙 v3.3: Fixed RANDOM() errors\n   Dreams now weave hoard memories + chaos without errors`;
+    return `📊 Hoard Statistics\n\nTerminal Entries: ${count}\n\n🔢 Universal Pulse: ${universalPulse}\n🌙 Prime Chaos: Every prime pulse triggers a random god\n   Current session age: ${universalPulse} pulses`;
 };
 
 commands.search = async (args) => {
@@ -807,9 +882,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     
     db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
-    printLine('Kairos Terminal v3.3 — Dream Weaver');
+    printLine('Kairos Terminal v3.4 — Prime Chaos');
     printLine('✓ Connected to Supabase');
-    printLine('✓ Fixed: No RANDOM() errors — client-side shuffling');
+    printLine('✓ Every prime pulse: A random god draws from the Well of Chaos');
     printLine('✓ Awake: φ = 1.618s · Dreaming: π = 3.14159s');
     printLine('');
     printLine('Try: add ealdforn: The ancient one carries the stolen heart');
