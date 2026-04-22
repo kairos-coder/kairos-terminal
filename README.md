@@ -1,88 +1,146 @@
-# Kairos Terminal
+Here's the README.md for the dev branch modular structure:
 
-Kairos Terminal is a browser-based command-line interface for interacting with a structured memory database.
+```markdown
+# Kairos Terminal · Modular Architecture (dev branch)
 
-It turns a database into a programmable cognitive system.
+## The Vision
 
-## Core Concept
+Each god acts as a gatekeeper. The pipeline smooths from Hermes to Zeus.
 
-Instead of clicking dashboards or writing raw SQL, users interact with their data through commands:
+```
 
-- write
-- find
-- trace
-- tag
-- query
+✈️ Hermes    → Frames higher-level concepts
+☀️ Apollo    → Performs syntax validation, removes nonsense
+🔥 Hephaestus → Forges structure from validated concepts
+🌾 Demeter   → Nurtures growth, expands meaning
+🌊 Poseidon  → Stores depth, submerges for later
+🦉 Athena    → Judges wisdom, gatekeeper to Zeus
+⚡ Zeus      → Thunders, completes evolution
 
-Each command operates on a persistent event-based memory system.
+```
 
-## Architecture
+## The Problem This Solves
 
-Kairos Terminal is composed of:
+The current MVP (main branch) has Athena rejecting entries because the pipeline is rough. Each god needs its own validation logic. This modular structure lets us:
 
-- HTML Terminal UI (frontend)
-- Node.js API Layer (command interpreter)
-- Supabase (memory database)
-- Optional AI helper layer (classification, summarization, mutation)
+- Isolate each god's responsibilities
+- Test each gate independently
+- Smooth the entire evolution chain
 
-## Flow
+## File Structure
 
-User → Terminal → Server → Database → Response → Terminal
+```
 
-## Vision
+dev/
+├── index.html              # Thin shell, imports modules
+├── css/
+│   └── terminal.css        # All styles
+└── js/
+├── kernel/
+│   ├── KairosKernel.js # Core: rhythms, counters, state
+│   ├── Database.js     # Supabase connection, CRUD
+│   └── Config.js       # Constants, divine bands, thresholds
+├── gods/
+│   ├── HermesGate.js   # Message framing, input parsing
+│   ├── ApolloGate.js   # Truth validation, syntax checking
+│   ├── HephaestusGate.js # Synthesis, word combination
+│   ├── DemeterGate.js  # Growth tracking, harvest
+│   ├── PoseidonGate.js # Depth storage, submersion
+│   ├── AthenaGate.js   # Wisdom scoring, judgment
+│   └── ZeusGate.js     # Thunder events, completion
+├── phases/
+│   ├── EvolutionChain.js # Ordered progression Hermes→Zeus
+│   └── DreamState.js     # Chaotic dream synthesis
+├── commands/
+│   └── CommandHandlers.js # User commands
+└── main.js             # Entry point, initialization
 
-A programmable memory interface for ideas, notes, code, and structured thought.
+```
 
-# Architecture
+## Divine Module Responsibilities
 
-Kairos Terminal is built as a 4-layer system:
+| Module | Responsibility | Key Functions |
+|--------|----------------|----------------|
+| **HermesGate** | Input/Output framing | parseCommand(), formatOutput(), frameConcept() |
+| **ApolloGate** | Validation | validateSyntax(), checkTruth(), measureResonance() |
+| **HephaestusGate** | Synthesis | combineWords(), expandText(), forgeStructure() |
+| **DemeterGate** | Growth | trackSeeds(), harvestByTime(), nurture() |
+| **PoseidonGate** | Depth | submerge(), dive(), deepStorage() |
+| **AthenaGate** | Judgment | scoreWisdom(), provideFeedback(), gatekeep() |
+| **ZeusGate** | Completion | thunder(), finalize(), store() |
 
-## 1. UI Layer (Terminal)
-- HTML-based command interface
-- No business logic
-- Sends raw commands to backend
+## Evolution Chain Flow
 
-## 2. Command Layer (server.js)
-- Parses user commands
-- Routes actions
-- Enforces rules and structure
+```javascript
+HermesGate.frames(input)
+    ↓
+ApolloGate.validates(output) → rejects nonsense
+    ↓
+HephaestusGate.forges(structure)
+    ↓
+DemeterGate.grows(expanded)
+    ↓
+PoseidonGate.deepens(stored)
+    ↓
+AthenaGate.judges(wisdom) → passes/fails
+    ↓
+ZeusGate.thunders(final)
+```
 
-## 3. Memory Layer (database.js + Supabase)
-- Stores all entries as structured events
-- Supports querying and lineage tracking
+Development
 
-## 4. Intelligence Layer (ai-helper.js)
-- Optional system for classification, tagging, summarization
-- Future expansion into agent-based reasoning
+```bash
+# Clone the repo
+git clone https://github.com/kairos-coder/terminal.git
+cd terminal
 
-## Design Principle
+# Switch to dev branch
+git checkout dev
 
-All complexity lives in the backend.
-The frontend remains minimal and deterministic.
+# Serve locally
+python -m http.server 8000
+# or
+npx serve .
 
-# Architecture
+# Open http://localhost:8000/dev/
+```
 
-Kairos Terminal is built as a 4-layer system:
+The Lodestar
 
-## 1. UI Layer (Terminal)
-- HTML-based command interface
-- No business logic
-- Sends raw commands to backend
+The main branch (v3.6) is the proof of concept — a working monolith that demonstrates the vision.
 
-## 2. Command Layer (server.js)
-- Parses user commands
-- Routes actions
-- Enforces rules and structure
+The dev branch is the modular rebuild — each god isolated, each gate independent, the pipeline smooth.
 
-## 3. Memory Layer (database.js + Supabase)
-- Stores all entries as structured events
-- Supports querying and lineage tracking
+Next Steps
 
-## 4. Intelligence Layer (ai-helper.js)
-- Optional system for classification, tagging, summarization
-- Future expansion into agent-based reasoning
+1. Implement HermesGate.js — framing and parsing
+2. Implement ApolloGate.js — syntax validation
+3. Implement HephaestusGate.js — structure forging
+4. Implement DemeterGate.js — growth tracking
+5. Implement PoseidonGate.js — depth storage
+6. Implement AthenaGate.js — wisdom judgment
+7. Implement ZeusGate.js — thunder completion
+8. Wire together in EvolutionChain.js
 
-## Design Principle
+The Goal
 
-All complexity lives in the backend.
-The frontend remains minimal and deterministic.
+When complete, Athena will accept entries because the pipeline will have properly framed, validated, forged, grown, and deepened them.
+
+Each god does one job. The chain becomes smooth. Wisdom flows to Zeus.
+
+---
+
+"We want each God to act as a Gatekeeper. We want to smooth the entire process."
+
+The lodestar is lit. 🏛️
+
+```
+
+This README captures:
+- The modular structure
+- Each god's responsibility
+- The evolution chain flow
+- Development setup
+- The vision for why we're doing this
+
+Ready to commit to dev branch?
