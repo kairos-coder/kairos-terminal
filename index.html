@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Kairos Terminal · Athena Gate · v3.5</title>
+  <title>Kairos Terminal · Evolution + Dream · v3.6</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -121,15 +121,6 @@
       border-radius: 20px;
     }
 
-    .prime-counter {
-      font-family: monospace;
-      font-size: 0.65rem;
-      background: #1a1f2a;
-      padding: 0.2rem 0.5rem;
-      border-radius: 20px;
-      color: #f39c12;
-    }
-
     .output {
       flex: 1;
       overflow-y: auto;
@@ -144,6 +135,13 @@
       white-space: pre-wrap;
       word-break: break-word;
       margin-bottom: 0.2rem;
+    }
+
+    .output div.evolution {
+      color: #73daca;
+      border-left: 2px solid #73daca;
+      padding-left: 0.5rem;
+      margin: 0.2rem 0;
     }
 
     .output div.dream {
@@ -180,14 +178,13 @@
       100% { text-shadow: 0 0 0px #9b59b6; }
     }
 
-    /* Band colors */
-    .band-hermes { color: #e8a87c; border-left: 2px solid #e8a87c; padding-left: 0.5rem; margin: 0.2rem 0; }
-    .band-apollo { color: #f4d03f; border-left: 2px solid #f4d03f; padding-left: 0.5rem; margin: 0.2rem 0; }
-    .band-hephaestus { color: #d45500; border-left: 2px solid #d45500; padding-left: 0.5rem; margin: 0.2rem 0; }
-    .band-demeter { color: #6b8e23; border-left: 2px solid #6b8e23; padding-left: 0.5rem; margin: 0.2rem 0; }
-    .band-poseidon { color: #2c6e9e; border-left: 2px solid #2c6e9e; padding-left: 0.5rem; margin: 0.2rem 0; }
-    .band-athena { color: #8e44ad; border-left: 2px solid #8e44ad; padding-left: 0.5rem; margin: 0.2rem 0; }
-    .band-zeus { color: #9b59b6; border-left: 2px solid #9b59b6; padding-left: 0.5rem; margin: 0.2rem 0; text-shadow: 0 0 1px #9b59b6; }
+    .band-hermes { color: #e8a87c; }
+    .band-apollo { color: #f4d03f; }
+    .band-hephaestus { color: #d45500; }
+    .band-demeter { color: #6b8e23; }
+    .band-poseidon { color: #2c6e9e; }
+    .band-athena { color: #8e44ad; }
+    .band-zeus { color: #9b59b6; }
 
     .input-line {
       display: flex;
@@ -229,7 +226,6 @@
       .input-line { padding: 0.5rem 0.8rem; }
       #command { font-size: 0.8rem; }
       .badge { font-size: 0.55rem; }
-      .prime-counter { font-size: 0.55rem; }
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -237,12 +233,11 @@
 <body>
 <div class="terminal" id="terminalContainer">
   <div class="terminal-header">
-    <div class="badge">⚡ KAIROS · ATHENA GATE v3.5</div>
+    <div class="badge">⚡ KAIROS · EVOLUTION + DREAM v3.6</div>
     <div class="rhythm-indicator">
       <div class="pulse-beat" id="pulseBeat"></div>
       <span id="rhythmLabel">φ = 1.618s</span>
     </div>
-    <div class="prime-counter" id="primeCounter">🔢 0</div>
     <div class="spectrum" id="spectrumDots">
       <div class="spectrum-dot" style="background:#e8a87c"></div>
       <div class="spectrum-dot" style="background:#f4d03f"></div>
@@ -259,10 +254,8 @@
   </div>
 
   <div id="output" class="output">
-    <div>Kairos Terminal v3.5 — Athena Gate</div>
-    <div>Awake: φ = 1.618s · Dreaming: π = 3.14159s</div>
-    <div>Every prime pulse: A random god draws from the Well of Chaos</div>
-    <div>🦉 Athena guards the wisdom threshold. Only worthy entries reach Zeus.</div>
+    <div>Kairos Terminal v3.6 — Evolution + Dream</div>
+    <div>Evolution: Order · Dream: Chaos · Athena: Wisdom</div>
     <div>&nbsp;</div>
     <div>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</div>
     <div>✈️ Hermes     1-10 words    → 4-8 Hz     (Infrared)</div>
@@ -278,20 +271,20 @@
 
   <div class="input-line">
     <span class="prompt">➜</span>
-    <input type="text" id="command" placeholder="add label: body | help | Athena judges the worthy" autofocus spellcheck="false" autocomplete="off">
+    <input type="text" id="command" placeholder="add label: body | help | evolution continues..." autofocus spellcheck="false" autocomplete="off">
   </div>
 
   <div class="footer">
-    <span>🏛️ Athena guards wisdom. Only substance reaches Zeus.</span>
-    <span>⚡ v3.5</span>
+    <span>🌱 Evolution (order) · 💭 Dreams (chaos) · 🦉 Athena judges</span>
+    <span>⚡ v3.6</span>
   </div>
 </div>
 
 <script>
 // ============================================================
-// KAIROS TERMINAL v3.5 - ATHENA GATE
-// Only entries with wisdom pass through Athena to Zeus
-// 1012 lines of divine judgment
+// KAIROS TERMINAL v3.6 - EVOLUTION + DREAM
+// Evolution: Continuous ordered growth from Hermes to Zeus
+// Dream: Chaotic random synthesis when idle for 30 pulses
 // ============================================================
 
 const SUPABASE_URL = 'https://kzcucjcyxybypncbdbws.supabase.co';
@@ -302,142 +295,33 @@ let commandHistory = [];
 let historyIndex = -1;
 
 // ============================================================
-// ATHENA GATEKEEPER - Wisdom Validation
-// ============================================================
-function athenaGatekeeper(body) {
-    const checks = {
-        hasCapitalLetter: /[A-Z]/.test(body),
-        hasEndPunctuation: /[.!?]$/.test(body),
-        wordCount: body.split(/\s+/).length,
-        hasMeaningfulLength: body.split(/\s+/).length >= 15,
-        notAllSameWord: !/^(\w+)( \1)+$/.test(body),
-        hasVariety: new Set(body.toLowerCase().split(/\s+/)).size > 4,
-        hasVowel: /[aeiou]/i.test(body),
-        hasConsonant: /[bcdfghjklmnpqrstvwxyz]/i.test(body),
-        notTooShort: body.length > 30,
-        hasActualWords: !/[0-9]{5,}/.test(body)
-    };
-    
-    const passedChecks = Object.values(checks).filter(Boolean).length;
-    const totalChecks = Object.keys(checks).length;
-    const score = Math.round((passedChecks / totalChecks) * 100);
-    
-    const feedback = [];
-    if (!checks.hasCapitalLetter) feedback.push("Begin with a capital letter.");
-    if (!checks.hasEndPunctuation) feedback.push("End with a period or question mark.");
-    if (!checks.hasMeaningfulLength) feedback.push("At least 15 words, child. Show some depth.");
-    if (!checks.notAllSameWord) feedback.push("Say something, not just the same word repeated.");
-    if (!checks.hasVariety) feedback.push("Use different words. Show some wit and wisdom.");
-    if (!checks.hasVowel) feedback.push("Vowels give voice to wisdom.");
-    if (!checks.hasConsonant) feedback.push("Consonants give structure to thought.");
-    if (!checks.notTooShort) feedback.push("Your entry is too brief. Elaborate.");
-    
-    return {
-        passed: score >= 65,
-        score: score,
-        checks: checks,
-        feedback: feedback
-    };
-}
-
-// ============================================================
-// PRIME CHAOS ENGINE
-// ============================================================
-let universalPulse = 0;
-
-function isPrime(n) {
-    if (n < 2) return false;
-    for (let i = 2; i <= Math.sqrt(n); i++) {
-        if (n % i === 0) return false;
-    }
-    return true;
-}
-
-const CHAOS_GODS = ['hermes', 'apollo', 'hephaestus', 'demeter', 'poseidon', 'athena', 'zeus'];
-
-async function primeChaosEvent(pulseNumber) {
-    const randomGod = CHAOS_GODS[Math.floor(Math.random() * CHAOS_GODS.length)];
-    const godInfo = getBandInfo(randomGod);
-    
-    try {
-        const { data: words } = await db
-            .from('one_word_primitives')
-            .select('word')
-            .limit(30);
-        
-        if (words && words.length > 0) {
-            const shuffled = shuffleArray([...words]);
-            const selected = shuffled.slice(0, 3 + Math.floor(Math.random() * 3));
-            const chaosMessage = selected.map(w => w.word).join(' · ');
-            
-            printLine(`🔢 PRIME PULSE ${pulseNumber} — ${godInfo.icon} ${godInfo.name} draws from the Well:`, randomGod, true);
-            printLine(`   "${chaosMessage}"`, randomGod, true);
-        } else {
-            const shuffled = shuffleArray([...FALLBACK_WORDS]);
-            const selected = shuffled.slice(0, 4);
-            const chaosMessage = selected.join(' · ');
-            printLine(`🔢 PRIME PULSE ${pulseNumber} — ${godInfo.icon} ${godInfo.name} draws from the Well:`, randomGod, true);
-            printLine(`   "${chaosMessage}"`, randomGod, true);
-        }
-    } catch (err) {
-        const shuffled = shuffleArray([...FALLBACK_WORDS]);
-        const selected = shuffled.slice(0, 4);
-        const chaosMessage = selected.join(' · ');
-        printLine(`🔢 PRIME PULSE ${pulseNumber} — ${godInfo.icon} ${godInfo.name} draws from the Well:`, randomGod, true);
-        printLine(`   "${chaosMessage}"`, randomGod, true);
-    }
-}
-
-// ============================================================
 // DIVINE BANDS
 // ============================================================
 const DIVINE_BANDS = {
-    hermes: { min: 1, max: 10, icon: '✈️', name: 'Hermes', freq: '4-8 Hz', light: 'Infrared', color: '#e8a87c', freqValue: 6, targetWords: 8 },
-    apollo: { min: 11, max: 25, icon: '☀️', name: 'Apollo', freq: '8-12 Hz', light: 'Sun Gold', color: '#f4d03f', freqValue: 10, targetWords: 18 },
-    hephaestus: { min: 26, max: 50, icon: '🔥', name: 'Hephaestus', freq: '12-15 Hz', light: 'Orange', color: '#d45500', freqValue: 13.5, targetWords: 38 },
-    demeter: { min: 51, max: 100, icon: '🌾', name: 'Demeter', freq: '15-20 Hz', light: 'Green', color: '#6b8e23', freqValue: 17.5, targetWords: 75 },
-    poseidon: { min: 101, max: 150, icon: '🌊', name: 'Poseidon', freq: '20-30 Hz', light: 'Blue', color: '#2c6e9e', freqValue: 25, targetWords: 125 },
-    athena: { min: 151, max: 225, icon: '🦉', name: 'Athena', freq: '30-40 Hz', light: 'Purple', color: '#8e44ad', freqValue: 35, targetWords: 188 },
-    zeus: { min: 226, max: 325, icon: '⚡', name: 'Zeus', freq: '40-100 Hz', light: 'Ultraviolet', color: '#9b59b6', freqValue: 70, targetWords: 275 }
+    hermes: { index: 1, icon: '✈️', name: 'Hermes', freqValue: 6, targetWords: [3, 5], time: 1618, color: '#e8a87c' },
+    apollo: { index: 2, icon: '☀️', name: 'Apollo', freqValue: 10, targetWords: [5, 10], time: 3236, color: '#f4d03f' },
+    hephaestus: { index: 3, icon: '🔥', name: 'Hephaestus', freqValue: 13.5, targetWords: [10, 20], time: 4854, color: '#d45500' },
+    demeter: { index: 4, icon: '🌾', name: 'Demeter', freqValue: 17.5, targetWords: [20, 40], time: 6472, color: '#6b8e23' },
+    poseidon: { index: 5, icon: '🌊', name: 'Poseidon', freqValue: 25, targetWords: [40, 80], time: 8090, color: '#2c6e9e' },
+    athena: { index: 6, icon: '🦉', name: 'Athena', freqValue: 35, targetWords: [80, 150], time: 9708, color: '#8e44ad' },
+    zeus: { index: 7, icon: '⚡', name: 'Zeus', freqValue: 70, targetWords: [150, 300], time: 11326, color: '#9b59b6' }
 };
 
-// Fallback words for when database is unavailable
 const FALLBACK_WORDS = [
     'threshold', 'whisper', 'wing', 'light', 'truth', 'forge', 'fire',
     'depth', 'weave', 'thunder', 'echo', 'shadow', 'ember', 'thread',
-    'memory', 'longing', 'courage', 'fate', 'dream', 'silence', 'chaos',
-    'veil', 'spark', 'drift', 'pulse', 'ghost', 'shard', 'cipher'
+    'memory', 'longing', 'courage', 'fate', 'dream', 'silence', 'chaos'
 ];
 
-function shuffleArray(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-}
+function getBandInfo(band) { return DIVINE_BANDS[band]; }
+function shuffleArray(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
 
-function getBandFromWordCount(wordCount) {
-    if (wordCount <= 10) return 'hermes';
-    if (wordCount <= 25) return 'apollo';
-    if (wordCount <= 50) return 'hephaestus';
-    if (wordCount <= 100) return 'demeter';
-    if (wordCount <= 150) return 'poseidon';
-    if (wordCount <= 225) return 'athena';
-    return 'zeus';
-}
-
-function getBandInfo(band) {
-    return DIVINE_BANDS[band];
-}
-
-function printLine(text, band = null, isDream = false, isThunder = false, isRejected = false) {
+function printLine(text, band = null, isEvolution = false, isDream = false, isThunder = false, isRejected = false) {
     const output = document.getElementById('output');
     const line = document.createElement('div');
     line.textContent = text;
-    if (band && DIVINE_BANDS[band]) {
-        line.classList.add(`band-${band}`);
-    }
+    if (band && DIVINE_BANDS[band]) line.classList.add(`band-${band}`);
+    if (isEvolution) line.classList.add('evolution');
     if (isDream) line.classList.add('dream');
     if (isThunder) line.classList.add('thunder');
     if (isRejected) line.classList.add('rejected');
@@ -446,320 +330,266 @@ function printLine(text, band = null, isDream = false, isThunder = false, isReje
 }
 
 // ============================================================
-// EXPAND TEXT TO TARGET WORD COUNT
+// ATHENA GATEKEEPER
 // ============================================================
-async function expandToTarget(text, targetWords) {
-    let currentWords = text.split(/\s+/).length;
-    let expanded = text;
+function athenaGatekeeper(body, isDream = false) {
+    const checks = {
+        hasCapitalLetter: /[A-Z]/.test(body),
+        hasEndPunctuation: /[.!?]$/.test(body),
+        wordCount: body.split(/\s+/).length,
+        hasMeaningfulLength: body.split(/\s+/).length >= 20,
+        hasVariety: new Set(body.toLowerCase().split(/\s+/)).size > 8,
+        notRepetitive: !/(\b\w+\b)(?: \1){2,}/.test(body),
+        hasConceptWords: /(because|therefore|however|although|meanwhile|consequently)/i.test(body),
+        hasImagery: /(like|as|seems|appears|feels|sounds|looks)/i.test(body),
+        hasConnection: /(and|or|but|so|for|nor|yet)/i.test(body)
+    };
     
-    while (currentWords < targetWords && currentWords < targetWords + 20) {
-        const useHoard = Math.random() > 0.5;
-        
-        if (useHoard) {
-            try {
-                const { data: entries } = await db
-                    .from('terminal_entries')
-                    .select('body')
-                    .limit(20);
-                if (entries && entries.length > 0) {
-                    const shuffled = shuffleArray([...entries]);
-                    const snippet = shuffled[0].body.split(/\s+/).slice(0, 3).join(' ');
-                    expanded += ' · ' + snippet;
-                } else {
-                    const fallbackWord = FALLBACK_WORDS[Math.floor(Math.random() * FALLBACK_WORDS.length)];
-                    expanded += ' · ' + fallbackWord;
-                }
-            } catch(e) {
-                const fallbackWord = FALLBACK_WORDS[Math.floor(Math.random() * FALLBACK_WORDS.length)];
-                expanded += ' · ' + fallbackWord;
-            }
-        } else {
-            const fallbackWord = FALLBACK_WORDS[Math.floor(Math.random() * FALLBACK_WORDS.length)];
-            expanded += ' · ' + fallbackWord;
-        }
-        
-        currentWords = expanded.split(/\s+/).length;
-    }
+    let score = 0;
+    if (checks.hasCapitalLetter) score += 12;
+    if (checks.hasEndPunctuation) score += 12;
+    if (checks.hasMeaningfulLength) score += 15;
+    if (checks.hasVariety) score += 15;
+    if (checks.notRepetitive) score += 10;
+    if (checks.hasConceptWords) score += 12;
+    if (checks.hasImagery) score += 12;
+    if (checks.hasConnection) score += 12;
     
-    return expanded;
+    const passThreshold = isDream ? 50 : 65;
+    const feedback = [];
+    if (!checks.hasCapitalLetter) feedback.push("Begin with a capital letter.");
+    if (!checks.hasEndPunctuation) feedback.push("End with a period, question mark, or exclamation.");
+    if (!checks.hasMeaningfulLength) feedback.push("At least 20 words. Show depth.");
+    if (!checks.hasVariety) feedback.push("Use more varied vocabulary.");
+    if (!checks.hasConceptWords) feedback.push("Use connecting words (because, however, therefore).");
+    if (!checks.hasImagery) feedback.push("Paint a picture. Use imagery (like, as, seems).");
+    
+    return { passed: score >= passThreshold, score: score, threshold: passThreshold, feedback: feedback.slice(0, 3) };
 }
 
 // ============================================================
-// DUAL RHYTHM STATE MACHINE
+// EVOLUTION PULSE (Order)
 // ============================================================
-const DualRhythm = {
-    state: 'awake',
-    awakePulseCount: 0,
-    targetAwakePulses: 30,
-    dreamStep: 0,
-    dreamWave: [],
+const Evolution = {
+    isActive: true,
+    currentBand: 'hermes',
+    currentChain: {},
     timer: null,
     
-    phi: 1618,
-    pi: 3142,
-    
-    start() {
-        this.updateUI();
-        this.scheduleTick();
+    async start() {
+        this.isActive = true;
+        await this.evolveBand('hermes');
     },
     
-    scheduleTick() {
-        const interval = this.state === 'awake' ? this.phi : this.pi;
-        if (this.timer) clearTimeout(this.timer);
-        this.timer = setTimeout(() => this.tick(), interval);
+    pause() {
+        this.isActive = false;
+        if (this.timer) { clearTimeout(this.timer); this.timer = null; }
+        printLine(`⏸️ Evolution paused — Terminal dreams...`, null, true);
     },
     
-    async tick() {
-        if (this.state === 'awake') {
-            await this.awakePulse();
+    resume() {
+        this.isActive = true;
+        printLine(`▶️ Evolution resumes from ${this.currentBand.toUpperCase()}`, null, true);
+        this.evolveBand(this.currentBand);
+    },
+    
+    async evolveBand(band) {
+        if (!this.isActive) return;
+        
+        const config = DIVINE_BANDS[band];
+        const bandInfo = config;
+        
+        let sourceText = '';
+        if (band === 'hermes') {
+            const { data: words } = await db.from('one_word_primitives').select('word').limit(10);
+            if (words && words.length) {
+                const shuffled = shuffleArray([...words]);
+                sourceText = shuffled.slice(0, 3).map(w => w.word).join(' · ');
+            } else {
+                sourceText = FALLBACK_WORDS.slice(0, 3).join(' · ');
+            }
         } else {
-            await this.dreamPulse();
+            const prevBand = this.getPreviousBand(band);
+            sourceText = this.currentChain[prevBand];
+            if (!sourceText) { setTimeout(() => this.evolveBand(band), 1000); return; }
         }
-        this.scheduleTick();
+        
+        let result = sourceText;
+        let currentWords = result.split(/\s+/).length;
+        const targetMin = config.targetWords[0];
+        
+        while (currentWords < targetMin) {
+            const { data: entries } = await db.from('terminal_entries').select('body').limit(5);
+            if (entries && entries.length) {
+                const snippet = entries[0].body.split(/\s+/).slice(0, 5).join(' ');
+                result += ' ' + snippet;
+            } else {
+                result += ' ' + FALLBACK_WORDS[Math.floor(Math.random() * FALLBACK_WORDS.length)];
+            }
+            currentWords = result.split(/\s+/).length;
+        }
+        
+        if (band === 'athena') {
+            const judgment = athenaGatekeeper(result, false);
+            if (!judgment.passed) {
+                printLine(`🦉 Athena: "Not yet. Deepen." Score: ${judgment.score}% (need ${judgment.threshold}%)`, 'athena', true);
+                judgment.feedback.forEach(msg => printLine(`   - ${msg}`, 'athena', true));
+                this.timer = setTimeout(() => this.evolveBand(band), config.time);
+                return;
+            }
+            printLine(`🦉 Athena: "Wisdom recognized. Ascend." Score: ${judgment.score}%`, 'athena', true);
+        }
+        
+        this.currentChain[band] = result;
+        const preview = result.substring(0, 60) + (result.length > 60 ? '...' : '');
+        printLine(`🌱 ${bandInfo.icon} ${bandInfo.name} (${bandInfo.index}φ = ${(config.time/1000).toFixed(2)}s): "${preview}"`, band, true);
+        
+        const nextBand = this.getNextBand(band);
+        if (nextBand) {
+            this.currentBand = nextBand;
+            this.timer = setTimeout(() => this.evolveBand(nextBand), config.time);
+        } else {
+            await this.storeEvolution();
+            this.currentChain = {};
+            this.currentBand = 'hermes';
+            printLine(`🔄 Evolution complete. Starting new chain in 3s...`, null, true);
+            this.timer = setTimeout(() => this.evolveBand('hermes'), 3000);
+        }
     },
     
-    async awakePulse() {
-        universalPulse++;
-        
-        const primeCounter = document.getElementById('primeCounter');
-        if (primeCounter) primeCounter.innerHTML = `🔢 ${universalPulse}`;
-        
-        if (isPrime(universalPulse)) {
-            await primeChaosEvent(universalPulse);
-        }
-        
-        this.awakePulseCount++;
-        this.updateUI();
-        
-        const pulseBeat = document.getElementById('pulseBeat');
-        pulseBeat.style.transform = 'scale(1.3)';
-        setTimeout(() => { if (pulseBeat) pulseBeat.style.transform = 'scale(1)'; }, 100);
-        
-        try {
-            await db.from('terminal_entries').select('id', { head: true, count: 'exact' });
-        } catch(e) { /* silent */ }
-        
-        if (this.awakePulseCount >= this.targetAwakePulses) {
-            this.beginDreaming();
-        }
+    async storeEvolution() {
+        const zeusBody = this.currentChain.zeus;
+        if (!zeusBody) return;
+        await db.from('terminal_entries').insert({
+            label: `evolution_zeus_${Date.now()}`,
+            body: zeusBody,
+            word_count: zeusBody.split(/\s+/).length,
+            divine_band: 'zeus',
+            frequency_hz: 70,
+            light_wavelength: 'ultraviolet',
+            divine_icon: '⚡'
+        });
+        printLine(`⚡ ZEUS THUNDERS — Evolution stored!`, 'zeus', true, true);
     },
     
-    beginDreaming() {
-        this.state = 'dreaming';
+    getPreviousBand(band) {
+        const order = ['hermes', 'apollo', 'hephaestus', 'demeter', 'poseidon', 'athena', 'zeus'];
+        const idx = order.indexOf(band);
+        return idx > 0 ? order[idx - 1] : null;
+    },
+    
+    getNextBand(band) {
+        const order = ['hermes', 'apollo', 'hephaestus', 'demeter', 'poseidon', 'athena', 'zeus'];
+        const idx = order.indexOf(band);
+        return idx < order.length - 1 ? order[idx + 1] : null;
+    }
+};
+
+// ============================================================
+// DREAM STATE (Chaos)
+// ============================================================
+const DreamState = {
+    isActive: false,
+    dreamStep: 0,
+    
+    async begin() {
+        if (Evolution.isActive) Evolution.pause();
+        this.isActive = true;
         this.dreamStep = 0;
-        this.dreamWave = [];
-        this.awakePulseCount = 0;
-        
         document.getElementById('terminalContainer').classList.add('dreaming');
         document.getElementById('pulseBeat').classList.add('dream');
         document.getElementById('rhythmLabel').innerHTML = 'π = 3.14s';
         document.getElementById('stateLabel').innerHTML = 'DREAMING';
-        document.getElementById('counter').innerHTML = '0/7';
-        
-        this.resetSpectrumDots();
-        printLine('✨ The terminal falls asleep... Dreams begin.', null, true);
-        this.updateUI();
+        printLine(`✨ The terminal falls asleep... Chaos dreams begin.`, null, true);
+        await this.dream();
     },
     
-    async dreamPulse() {
-        try {
-            const bands = ['hermes', 'apollo', 'hephaestus', 'demeter', 'poseidon', 'athena', 'zeus'];
-            const band = bands[this.dreamStep];
-            const bandInfo = getBandInfo(band);
-            
-            this.updateSpectrumDot(this.dreamStep);
-            
-            const entry = await this.synthesizeDreamEntry(band);
-            
-            if (entry === null) {
-                // Athena rejected the entry - retry with same band
-                printLine(`🦉 Athena refuses the unworthy. The dream tries again...`, 'athena', true);
-                return;
-            }
-            
-            this.dreamWave.push(entry);
-            
-            const preview = entry.body.substring(0, 70) + (entry.body.length > 70 ? '...' : '');
-            printLine(`💭 ${bandInfo.icon} ${bandInfo.name} dreams: "${preview}"`, band, true);
-            
-            this.dreamStep++;
-            this.updateUI();
-            
-            if (this.dreamStep >= 7) {
-                await this.completeDream();
-            }
-        } catch (err) {
-            console.error('Dream pulse error:', err);
-            printLine(`⚠️ Dream stumbles... continuing`, null, true);
-            this.dreamStep++;
-            this.updateUI();
-            if (this.dreamStep >= 7) {
-                await this.completeDream();
-            }
-        }
-    },
-    
-    async synthesizeDreamEntry(band) {
-        const bandInfo = getBandInfo(band);
-        let body = '';
+    async dream() {
+        if (!this.isActive) return;
         
-        try {
-            const useHoard = Math.random() > 0.5;
-            
-            if (useHoard) {
-                const { data: entries } = await db
-                    .from('terminal_entries')
-                    .select('body')
-                    .limit(20);
-                
-                if (entries && entries.length > 0) {
-                    const shuffled = shuffleArray([...entries]);
-                    const selected = shuffled.slice(0, 2);
-                    body = selected.map(e => e.body.substring(0, 80)).join(' · ');
-                }
-            }
-            
-            if (!body) {
-                const { data: words } = await db
-                    .from('one_word_primitives')
-                    .select('word')
-                    .limit(30);
-                
-                if (words && words.length > 0) {
-                    const shuffled = shuffleArray([...words]);
-                    const selected = shuffled.slice(0, 4);
-                    body = selected.map(w => w.word).join(' · ');
-                } else {
-                    const shuffled = shuffleArray([...FALLBACK_WORDS]);
-                    body = shuffled.slice(0, 4).join(' · ');
-                }
-            }
-        } catch (err) {
-            console.error('Dream synthesis error:', err);
+        const bands = ['hermes', 'apollo', 'hephaestus', 'demeter', 'poseidon', 'athena', 'zeus'];
+        const band = bands[this.dreamStep];
+        const bandInfo = DIVINE_BANDS[band];
+        
+        const { data: words } = await db.from('one_word_primitives').select('word').limit(20);
+        let dreamBody = '';
+        if (words && words.length) {
+            const shuffled = shuffleArray([...words]);
+            dreamBody = shuffled.slice(0, 4).map(w => w.word).join(' · ');
+        } else {
             const shuffled = shuffleArray([...FALLBACK_WORDS]);
-            body = shuffled.slice(0, 4).join(' · ');
+            dreamBody = shuffled.slice(0, 4).join(' · ');
         }
         
-        // Expand to target word count
-        let currentWords = body.split(/\s+/).length;
-        let expanded = body;
-        const targetMin = bandInfo.targetWords;
-        
-        while (currentWords < targetMin && currentWords < targetMin + 10) {
-            const fallbackWord = FALLBACK_WORDS[Math.floor(Math.random() * FALLBACK_WORDS.length)];
-            expanded += ' · ' + fallbackWord;
-            currentWords++;
-        }
-        
-        const finalWordCount = expanded.split(/\s+/).length;
-        
-        // ATHENA GATEKEEPER - Only validate at Athena band (step 5, index 5)
-        // Also validate at Zeus band (step 6, index 6) since Zeus requires Athena's blessing
-        if (band === 'athena' || band === 'zeus') {
-            const judgment = athenaGatekeeper(expanded);
-            
-            if (!judgment.passed) {
-                printLine(`🦉 ATHENA GATEKEEPER:`, 'athena', true);
-                printLine(`   Entry: "${expanded.substring(0, 80)}..."`, 'athena', true);
-                printLine(`   ❌ REJECTED (Wisdom Score: ${judgment.score}%)`, 'athena', true, true);
-                printLine(`   Athena demands:`, 'athena', true);
-                judgment.feedback.forEach(msg => printLine(`   - ${msg}`, 'athena', true));
-                printLine(`   Return to Demeter. Revise. Try again.`, 'athena', true);
-                return null; // Reject this dream, don't store
-            } else {
-                printLine(`🦉 ATHENA GATEKEEPER: ✓ ACCEPTED (Wisdom Score: ${judgment.score}%)`, 'athena', true);
-                printLine(`   "Wisdom recognized. Proceed to ${band === 'zeus' ? 'Zeus' : 'the next band'}."`, 'athena', true);
-            }
-        }
-        
-        const label = `dream_${band}_${Date.now()}_${this.dreamStep}`;
-        
-        const { error } = await db.from('terminal_entries').insert({
-            label: label,
-            body: expanded,
-            word_count: finalWordCount,
+        const wordCount = dreamBody.split(/\s+/).length;
+        await db.from('terminal_entries').insert({
+            label: `dream_${band}_${Date.now()}`,
+            body: dreamBody,
+            word_count: wordCount,
             divine_band: band,
             frequency_hz: bandInfo.freqValue,
-            light_wavelength: bandInfo.light.toLowerCase().replace(' ', '_'),
-            divine_color: bandInfo.color,
+            light_wavelength: 'dream',
             divine_icon: bandInfo.icon
         });
         
-        if (error) console.error('Dream insert error:', error);
+        const preview = dreamBody.substring(0, 60) + (dreamBody.length > 60 ? '...' : '');
+        printLine(`💭 ${bandInfo.icon} ${bandInfo.name} dreams: "${preview}"`, band, true);
         
-        return { band, body: expanded, label, wordCount: finalWordCount };
+        this.dreamStep++;
+        this.updateCounter();
+        
+        if (this.dreamStep >= 7) {
+            await this.complete();
+        } else {
+            setTimeout(() => this.dream(), 3142);
+        }
     },
     
-    async completeDream() {
-        const zeusEntry = this.dreamWave[6];
-        if (zeusEntry) {
-            printLine(`⚡ ZEUS THUNDERS FROM THE DREAM...`, 'zeus', true, true);
-            printLine(`   "${zeusEntry.body.substring(0, 100)}..."`, 'zeus', true, true);
-        } else {
-            printLine(`⚡ ZEUS THUNDERS... The dream completes.`, 'zeus', true, true);
-        }
-        printLine(`💫 The dream fades. The terminal wakes.`, null, true);
+    async complete() {
+        printLine(`⚡ ZEUS THUNDERS — The dream completes!`, 'zeus', true, true);
+        printLine(`💫 The terminal wakes. Evolution resumes.`, null, true);
         
-        this.state = 'awake';
-        this.dreamStep = 0;
-        this.dreamWave = [];
-        this.awakePulseCount = 0;
-        
+        this.isActive = false;
         document.getElementById('terminalContainer').classList.remove('dreaming');
         document.getElementById('pulseBeat').classList.remove('dream');
         document.getElementById('rhythmLabel').innerHTML = 'φ = 1.618s';
         document.getElementById('stateLabel').innerHTML = 'AWAKE';
-        document.getElementById('counter').innerHTML = '0/30';
-        this.resetSpectrumDots();
         
-        this.updateUI();
+        AwakePulseCounter.reset();
+        Evolution.resume();
     },
     
-    onUserInput() {
-        if (this.state === 'dreaming') {
-            printLine('👤 You speak. The dream scatters like mist...', null, true);
-            
-            if (this.timer) clearTimeout(this.timer);
-            this.state = 'awake';
-            this.dreamStep = 0;
-            this.dreamWave = [];
-            this.awakePulseCount = 0;
-            
-            document.getElementById('terminalContainer').classList.remove('dreaming');
-            document.getElementById('pulseBeat').classList.remove('dream');
-            document.getElementById('rhythmLabel').innerHTML = 'φ = 1.618s';
-            document.getElementById('stateLabel').innerHTML = 'AWAKE';
-            document.getElementById('counter').innerHTML = '0/30';
-            this.resetSpectrumDots();
-            
-            this.updateUI();
-            this.scheduleTick();
-        } else {
-            this.awakePulseCount = 0;
-            this.updateUI();
+    updateCounter() {
+        document.getElementById('counter').innerHTML = `${this.dreamStep}/7`;
+    }
+};
+
+// ============================================================
+// AWAKE PULSE COUNTER
+// ============================================================
+const AwakePulseCounter = {
+    count: 0,
+    target: 30,
+    interval: null,
+    
+    start() {
+        if (this.interval) clearInterval(this.interval);
+        this.interval = setInterval(() => this.increment(), 1618);
+    },
+    
+    increment() {
+        if (DreamState.isActive) return;
+        this.count++;
+        document.getElementById('counter').innerHTML = `${this.count}/${this.target}`;
+        if (this.count >= this.target) {
+            this.count = 0;
+            DreamState.begin();
         }
     },
     
-    updateSpectrumDot(step) {
-        const dots = document.querySelectorAll('.spectrum-dot');
-        dots.forEach((dot, i) => {
-            if (i <= step) dot.classList.add('active');
-            else dot.classList.remove('active');
-        });
-    },
-    
-    resetSpectrumDots() {
-        const dots = document.querySelectorAll('.spectrum-dot');
-        dots.forEach(dot => dot.classList.remove('active'));
-    },
-    
-    updateUI() {
-        const counterEl = document.getElementById('counter');
-        if (this.state === 'awake') {
-            counterEl.innerHTML = `${this.awakePulseCount}/${this.targetAwakePulses}`;
-        } else {
-            counterEl.innerHTML = `${this.dreamStep}/7`;
-        }
+    reset() {
+        this.count = 0;
+        document.getElementById('counter').innerHTML = `0/${this.target}`;
     }
 };
 
@@ -770,35 +600,22 @@ const commands = {};
 
 commands.help = async () => {
     return `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                  ATHENA GATE — v3.5
+                  EVOLUTION + DREAM — v3.6
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  ${'BAND'.padEnd(12)} ${'WORDS'.padEnd(10)} ${'FREQUENCY'.padEnd(12)} ${'LIGHT'}
-  ─────────────────────────────────────────────────────────
-  ${'✈️ Hermes'.padEnd(12)} ${'1-10'.padEnd(10)} ${'4-8 Hz'.padEnd(12)} ${'Infrared'}
-  ${'☀️ Apollo'.padEnd(12)} ${'11-25'.padEnd(10)} ${'8-12 Hz'.padEnd(12)} ${'Sun Gold'}
-  ${'🔥 Hephaestus'.padEnd(12)} ${'26-50'.padEnd(10)} ${'12-15 Hz'.padEnd(12)} ${'Orange'}
-  ${'🌾 Demeter'.padEnd(12)} ${'51-100'.padEnd(10)} ${'15-20 Hz'.padEnd(12)} ${'Green'}
-  ${'🌊 Poseidon'.padEnd(12)} ${'101-150'.padEnd(10)} ${'20-30 Hz'.padEnd(12)} ${'Blue'}
-  ${'🦉 Athena'.padEnd(12)} ${'151-225'.padEnd(10)} ${'30-40 Hz'.padEnd(12)} ${'Purple'} ← GATEKEEPER
-  ${'⚡ Zeus'.padEnd(12)} ${'226-325'.padEnd(10)} ${'40-100 Hz'.padEnd(12)} ${'Ultraviolet'}
+🌱 EVOLUTION (Order):
+  Continuous chain: Hermes → Apollo → Hephaestus → Demeter → Poseidon → Athena → Zeus
+  Each band takes BAND_INDEX × φ seconds
+  Athena judges wisdom. Only worthy reach Zeus.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-🦉 ATHENA GATEKEEPER:
-  Only entries with wisdom pass through Athena to Zeus.
-  Requirements:
-  - Capital letter to begin
-  - Proper ending punctuation
-  - At least 15 words
-  - Varied vocabulary
-  - Actual meaning, not repetition
-
-🔢 PRIME CHAOS:
-  Every prime pulse: A random god draws from the Well of Chaos
+💭 DREAM (Chaos):
+  After 30 awake pulses (48.5s of silence), terminal dreams
+  7 chaotic dreams at π = 3.14159s
+  Pulls randomly from Well of Chaos
+  No judgment — pure creative chaos
 
 📝 COMMANDS:
-  add <label>: <body>     → Entry claimed by its divine band
+  add <label>: <body>     → Entry claimed by divine band
   list [page]             → List entries
   random                  → Get random entry
   search <text>           → Search by label or body
@@ -808,15 +625,11 @@ commands.help = async () => {
   help                    → This message
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💫 The terminal breathes at φ. It dreams at π.
-   Athena guards wisdom. Only the worthy reach Zeus.
+💫 Evolution brings order. Dreams bring chaos. Athena brings wisdom.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
 };
 
-commands.clear = async () => {
-    document.getElementById('output').innerHTML = '';
-    return null;
-};
+commands.clear = async () => { document.getElementById('output').innerHTML = ''; return null; };
 
 commands.add = async (args, fullInput) => {
     const match = fullInput.match(/^add\s+([^:]+):\s*(.+)$/i);
@@ -825,117 +638,93 @@ commands.add = async (args, fullInput) => {
     const label = match[1].trim();
     const body = match[2].trim();
     const wordCount = body.split(/\s+/).length;
-    let band = getBandFromWordCount(wordCount);
-    const bandInfo = getBandInfo(band);
     
-    // If trying to add directly to Zeus or Athena, must pass Athena's judgment
-    if (band === 'zeus' || band === 'athena') {
-        const judgment = athenaGatekeeper(body);
+    let band = 'hermes';
+    if (wordCount <= 10) band = 'hermes';
+    else if (wordCount <= 25) band = 'apollo';
+    else if (wordCount <= 50) band = 'hephaestus';
+    else if (wordCount <= 100) band = 'demeter';
+    else if (wordCount <= 150) band = 'poseidon';
+    else if (wordCount <= 225) band = 'athena';
+    else band = 'zeus';
+    
+    const bandInfo = DIVINE_BANDS[band];
+    
+    if (band === 'athena' || band === 'zeus') {
+        const judgment = athenaGatekeeper(body, false);
         if (!judgment.passed) {
-            let rejectionMsg = `🦉 ATHENA GATEKEEPER: Entry rejected for ${bandInfo.name} band.\n`;
-            rejectionMsg += `   Wisdom Score: ${judgment.score}%\n`;
-            rejectionMsg += `   Athena demands:\n`;
-            judgment.feedback.forEach(msg => rejectionMsg += `   - ${msg}\n`);
-            rejectionMsg += `\n   Consider: Add more substance, proper punctuation, and varied vocabulary.`;
-            return rejectionMsg;
+            let msg = `🦉 Athena rejects entry for ${bandInfo.name} band.\n   Score: ${judgment.score}% (need ${judgment.threshold}%)\n   Demands:\n`;
+            judgment.feedback.forEach(f => msg += `   - ${f}\n`);
+            return msg;
         }
     }
     
     const { error } = await db.from('terminal_entries').insert({
         label, body, word_count: wordCount,
         divine_band: band, frequency_hz: bandInfo.freqValue,
-        light_wavelength: bandInfo.light.toLowerCase().replace(' ', '_'),
-        divine_color: bandInfo.color, divine_icon: bandInfo.icon
+        light_wavelength: 'visible', divine_color: bandInfo.color, divine_icon: bandInfo.icon
     });
     
     if (error) return `Error: ${error.message}`;
-    
-    let wisdomNote = '';
-    if (band === 'zeus' || band === 'athena') {
-        wisdomNote = `\n   🦉 Athena acknowledges your wisdom.`;
-    }
-    
-    return `✓ "${label}" claimed by ${bandInfo.icon} ${bandInfo.name} [${bandInfo.freqValue}Hz] — ${wordCount} words${wisdomNote}`;
+    return `✓ "${label}" claimed by ${bandInfo.icon} ${bandInfo.name} [${bandInfo.freqValue}Hz] — ${wordCount} words`;
 };
 
 commands.list = async (args) => {
     let page = 1, limit = 15;
     if (args.length > 0 && !isNaN(parseInt(args[0]))) page = parseInt(args[0]);
     const offset = (page - 1) * limit;
-    
-    const { count, error: countError } = await db.from('terminal_entries').select('*', { count: 'exact', head: true });
-    if (countError) return `Error: ${countError.message}`;
-    if (count === 0) return 'No entries found. Use "add label: body" to create one.';
-    
+    const { count } = await db.from('terminal_entries').select('*', { count: 'exact', head: true });
+    if (count === 0) return 'No entries found.';
     const totalPages = Math.ceil(count / limit);
-    if (page > totalPages) return `Page ${page} doesn't exist. Total pages: ${totalPages}.`;
-    
-    const { data, error } = await db.from('terminal_entries').select('*').order('created_at', { ascending: false }).range(offset, offset + limit - 1);
-    if (error) return `Error: ${error.message}`;
-    
-    let output = `📋 Page ${page}/${totalPages} (${count} total entries):\n\n`;
+    if (page > totalPages) return `Page ${page} doesn't exist.`;
+    const { data } = await db.from('terminal_entries').select('*').order('created_at', { ascending: false }).range(offset, offset + limit - 1);
+    let output = `📋 Page ${page}/${totalPages} (${count} total):\n\n`;
     for (let i = 0; i < data.length; i++) {
         const entry = data[i];
-        const band = entry.divine_band || getBandFromWordCount(entry.word_count || 1);
-        const bandInfo = getBandInfo(band);
-        const num = offset + i + 1;
+        const band = entry.divine_band || 'hermes';
+        const info = DIVINE_BANDS[band];
         const preview = entry.body.substring(0, 55) + (entry.body.length > 55 ? '...' : '');
-        output += `${num}. ${bandInfo.icon} ${entry.label} [${bandInfo.freqValue}Hz]\n   ${preview}\n\n`;
+        output += `${offset + i + 1}. ${info.icon} ${entry.label} [${info.freqValue}Hz]\n   ${preview}\n\n`;
     }
     return output;
 };
 
 commands.random = async () => {
-    const { data, error } = await db.from('terminal_entries').select('*');
-    if (error) return `Error: ${error.message}`;
+    const { data } = await db.from('terminal_entries').select('*');
     if (!data || data.length === 0) return 'No entries found.';
-    
     const random = data[Math.floor(Math.random() * data.length)];
-    const band = random.divine_band || getBandFromWordCount(random.word_count || 1);
-    const bandInfo = getBandInfo(band);
-    return `${bandInfo.icon} Random Entry [${bandInfo.freqValue}Hz]:\nLabel: ${random.label}\nBody: ${random.body}\nWords: ${random.word_count}`;
+    const band = random.divine_band || 'hermes';
+    const info = DIVINE_BANDS[band];
+    return `${info.icon} Random Entry [${info.freqValue}Hz]:\nLabel: ${random.label}\nBody: ${random.body}\nWords: ${random.word_count}`;
 };
 
 commands.spectrum = async () => {
-    const { data, error } = await db.from('terminal_entries').select('divine_band, word_count');
-    if (error) return `Error: ${error.message}`;
-    
-    const counts = { hermes: 0, apollo: 0, hephaestus: 0, demeter: 0, poseidon: 0, athena: 0, zeus: 0 };
-    for (const entry of data) {
-        const band = entry.divine_band || getBandFromWordCount(entry.word_count || 1);
-        if (counts[band] !== undefined) counts[band]++;
-    }
-    
-    let output = `🌈 DIVINE SPECTRUM — Word Count Distribution\n\n`;
+    const { data } = await db.from('terminal_entries').select('divine_band');
+    const counts = { hermes:0, apollo:0, hephaestus:0, demeter:0, poseidon:0, athena:0, zeus:0 };
+    for (const entry of data) { const band = entry.divine_band || 'hermes'; if (counts[band] !== undefined) counts[band]++; }
+    let output = `🌈 DIVINE SPECTRUM\n\n`;
     for (const [band, count] of Object.entries(counts)) {
-        const info = getBandInfo(band);
+        const info = DIVINE_BANDS[band];
         const bar = '█'.repeat(Math.min(count, 25));
-        const gateMarker = band === 'athena' ? ' ← GATEKEEPER' : '';
-        output += `${info.icon} ${info.name.padEnd(10)} ${bar} ${count}${gateMarker}\n`;
+        output += `${info.icon} ${info.name.padEnd(10)} ${bar} ${count}\n`;
     }
-    output += `\n📊 Total: ${data.length} entries in the hoard.`;
-    output += `\n🦉 Only entries that pass Athena's wisdom reach Zeus.`;
     return output;
 };
 
 commands.stats = async () => {
-    const { count, error } = await db.from('terminal_entries').select('*', { count: 'exact', head: true });
-    if (error) return `Error: ${error.message}`;
-    return `📊 Hoard Statistics\n\nTerminal Entries: ${count}\n\n🔢 Universal Pulse: ${universalPulse}\n🦉 Athena Gate: Only wisdom reaches Zeus\n🌙 Prime Chaos: Every prime pulse triggers a random god\n   Current session age: ${universalPulse} pulses`;
+    const { count } = await db.from('terminal_entries').select('*', { count: 'exact', head: true });
+    return `📊 Hoard Statistics\n\nTerminal Entries: ${count}\n\n🌱 Evolution: Continuous chain Hermes→Zeus\n💭 Dreams: After 30 pulses of silence\n🦉 Athena: Judges wisdom for Zeus/Athena entries`;
 };
 
 commands.search = async (args) => {
     const searchTerm = args.join(' ');
     if (!searchTerm) return 'Usage: search <text>';
-    
-    const { data, error } = await db.from('terminal_entries').select('*').or(`label.ilike.%${searchTerm}%,body.ilike.%${searchTerm}%`).limit(30);
-    if (error) return `Error: ${error.message}`;
-    if (!data || data.length === 0) return `No matches found for "${searchTerm}"`;
-    
+    const { data } = await db.from('terminal_entries').select('*').or(`label.ilike.%${searchTerm}%,body.ilike.%${searchTerm}%`).limit(30);
+    if (!data || data.length === 0) return `No matches for "${searchTerm}"`;
     let output = `🔍 Found ${data.length} matches:\n\n`;
     for (const entry of data) {
-        const band = entry.divine_band || getBandFromWordCount(entry.word_count || 1);
-        const info = getBandInfo(band);
+        const band = entry.divine_band || 'hermes';
+        const info = DIVINE_BANDS[band];
         output += `${info.icon} ${entry.label} — ${entry.body.substring(0, 60)}${entry.body.length > 60 ? '...' : ''}\n`;
     }
     return output;
@@ -947,7 +736,17 @@ commands.search = async (args) => {
 async function processCommand(input) {
     if (!input.trim()) return;
     
-    DualRhythm.onUserInput();
+    // User input resets awake counter and interrupts dream
+    if (DreamState.isActive) {
+        DreamState.isActive = false;
+        document.getElementById('terminalContainer').classList.remove('dreaming');
+        document.getElementById('pulseBeat').classList.remove('dream');
+        document.getElementById('rhythmLabel').innerHTML = 'φ = 1.618s';
+        document.getElementById('stateLabel').innerHTML = 'AWAKE';
+        Evolution.resume();
+        printLine(`👤 You speak. The dream scatters. Evolution resumes.`, null, true);
+    }
+    AwakePulseCounter.reset();
     
     if (input.toLowerCase().startsWith('add ')) {
         const result = await commands.add(null, input);
@@ -985,16 +784,17 @@ window.addEventListener('DOMContentLoaded', async () => {
     
     db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
-    printLine('Kairos Terminal v3.5 — Athena Gate');
+    printLine('Kairos Terminal v3.6 — Evolution + Dream');
     printLine('✓ Connected to Supabase');
-    printLine('✓ Every prime pulse: A random god draws from the Well of Chaos');
-    printLine('✓ Awake: φ = 1.618s · Dreaming: π = 3.14159s');
-    printLine('✓ 🦉 Athena guards wisdom. Only worthy entries reach Zeus.');
+    printLine('✓ Evolution: Continuous chain Hermes→Zeus (order)');
+    printLine('✓ Dream: After 30 pulses of silence (chaos)');
+    printLine('✓ Athena: Judges wisdom for high bands');
     printLine('');
-    printLine('Try: add ealdforn: The ancient one carries the stolen warrior heart from the Vistula lord, keeping it safe until courage can be restored.');
+    printLine('Try: add ealdforn: The ancient one carries the stolen warrior heart.');
     printLine('');
     
-    DualRhythm.start();
+    Evolution.start();
+    AwakePulseCounter.start();
     
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
@@ -1011,21 +811,13 @@ window.addEventListener('DOMContentLoaded', async () => {
         
         if (e.key === 'ArrowUp') {
             e.preventDefault();
-            if (historyIndex > 0) {
-                historyIndex--;
-                input.value = commandHistory[historyIndex];
-            }
+            if (historyIndex > 0) { historyIndex--; input.value = commandHistory[historyIndex]; }
         }
         
         if (e.key === 'ArrowDown') {
             e.preventDefault();
-            if (historyIndex < commandHistory.length - 1) {
-                historyIndex++;
-                input.value = commandHistory[historyIndex];
-            } else if (historyIndex === commandHistory.length - 1) {
-                historyIndex++;
-                input.value = '';
-            }
+            if (historyIndex < commandHistory.length - 1) { historyIndex++; input.value = commandHistory[historyIndex]; }
+            else if (historyIndex === commandHistory.length - 1) { historyIndex++; input.value = ''; }
         }
     });
     
