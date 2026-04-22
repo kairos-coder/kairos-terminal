@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kairos Terminal · Hare-Heart Hoard · v2.1</title>
+  <title>Kairos Terminal · Divine Wave · v3.0</title>
   <style>
     * {
       margin: 0;
@@ -17,38 +17,36 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Courier New', monospace;
-      padding: 1.5rem;
+      font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+      padding: 1rem;
     }
 
-    .kairos-terminal {
+    .terminal {
       background-color: #0b0e14;
       border: 1px solid #2a2f3f;
       border-radius: 12px;
-      box-shadow: 0 20px 35px -12px rgba(0,0,0,0.8);
       width: 100%;
       max-width: 1100px;
-      height: 85vh;
-      min-height: 520px;
+      height: 90vh;
+      min-height: 600px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }
 
     .terminal-header {
-      padding: 0.9rem 1.4rem;
+      padding: 0.75rem 1.2rem;
       background: #07090e;
       border-bottom: 1px solid #1e232e;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.8rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
     }
 
-    .node-badge {
+    .badge {
       color: #6c8b9f;
-      font-weight: 500;
-      text-transform: uppercase;
       font-size: 0.7rem;
       background: #10131c;
       padding: 0.2rem 0.7rem;
@@ -56,7 +54,19 @@
       border-left: 2px solid #3e6b8c;
     }
 
-    .status-led {
+    .spectrum {
+      display: flex;
+      gap: 0.2rem;
+      align-items: center;
+    }
+
+    .spectrum-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+
+    .status {
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -65,34 +75,56 @@
     }
 
     .led {
-      width: 10px;
-      height: 10px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background-color: #2ecc71;
-      box-shadow: 0 0 6px #2ecc71;
+      box-shadow: 0 0 4px #2ecc71;
       animation: pulse 2s infinite;
     }
 
-    @keyframes pulse {
-      0% { opacity: 0.5; }
-      100% { opacity: 1; }
+    .pulsing {
+      animation: pulse 1s infinite;
     }
 
-    .terminal-output {
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    .output {
       flex: 1;
       overflow-y: auto;
-      padding: 1.2rem;
-      font-family: monospace;
-      font-size: 0.9rem;
-      line-height: 1.45;
+      padding: 1rem;
+      font-size: 0.85rem;
+      line-height: 1.5;
       color: #d4e0ed;
       background: #0a0d14;
     }
 
-    .terminal-output div {
+    .output div {
       white-space: pre-wrap;
       word-break: break-word;
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.2rem;
+    }
+
+    /* Divine band colors */
+    .band-hermes { color: #e8a87c; border-left: 2px solid #e8a87c; padding-left: 0.5rem; margin: 0.2rem 0; }
+    .band-apollo { color: #f4d03f; border-left: 2px solid #f4d03f; padding-left: 0.5rem; margin: 0.2rem 0; }
+    .band-hephaestus { color: #d45500; border-left: 2px solid #d45500; padding-left: 0.5rem; margin: 0.2rem 0; }
+    .band-demeter { color: #6b8e23; border-left: 2px solid #6b8e23; padding-left: 0.5rem; margin: 0.2rem 0; }
+    .band-poseidon { color: #2c6e9e; border-left: 2px solid #2c6e9e; padding-left: 0.5rem; margin: 0.2rem 0; }
+    .band-athena { color: #8e44ad; border-left: 2px solid #8e44ad; padding-left: 0.5rem; margin: 0.2rem 0; }
+    .band-zeus { color: #9b59b6; border-left: 2px solid #9b59b6; padding-left: 0.5rem; margin: 0.2rem 0; text-shadow: 0 0 2px #9b59b6; }
+
+    .thunder {
+      animation: thunderFlash 0.5s ease-in-out;
+    }
+
+    @keyframes thunderFlash {
+      0% { text-shadow: 0 0 0px #9b59b6; }
+      50% { text-shadow: 0 0 20px #9b59b6; color: #d4af37; }
+      100% { text-shadow: 0 0 0px #9b59b6; }
     }
 
     .input-line {
@@ -101,10 +133,10 @@
       gap: 0.5rem;
       background: #06080e;
       border-top: 1px solid #1a1f2a;
-      padding: 0.8rem 1.2rem;
+      padding: 0.7rem 1rem;
     }
 
-    .prompt-symbol {
+    .prompt {
       color: #7aa2c7;
       font-weight: 600;
     }
@@ -114,45 +146,71 @@
       background: transparent;
       border: none;
       color: #eaf2ff;
-      font-family: 'SF Mono', 'Fira Code', monospace;
-      font-size: 0.95rem;
+      font-family: inherit;
+      font-size: 0.9rem;
       outline: none;
-      padding: 0.3rem 0;
+      padding: 0.2rem 0;
     }
 
-    .footer-hint {
+    #command:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .footer {
       background: #03050780;
       font-size: 0.65rem;
-      text-align: center;
-      padding: 0.35rem;
+      padding: 0.3rem 1rem;
       color: #4b5e77;
       border-top: 1px solid #141a24;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .pulse-indicator {
+      font-family: monospace;
+      color: #f39c12;
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-<div class="kairos-terminal">
+<div class="terminal" id="terminalContainer">
   <div class="terminal-header">
-    <div class="node-badge">
-      <span>⚡ KERNEL NODE #1</span> <strong>· HARE-HEART HOARD v2.1</strong>
+    <div class="badge">⚡ KERNEL NODE #1 · DIVINE WAVE v3.0</div>
+    <div class="spectrum">
+      <div class="spectrum-dot" style="background:#e8a87c"></div>
+      <div class="spectrum-dot" style="background:#f4d03f"></div>
+      <div class="spectrum-dot" style="background:#d45500"></div>
+      <div class="spectrum-dot" style="background:#6b8e23"></div>
+      <div class="spectrum-dot" style="background:#2c6e9e"></div>
+      <div class="spectrum-dot" style="background:#8e44ad"></div>
+      <div class="spectrum-dot" style="background:#9b59b6"></div>
+      <span style="font-size:0.6rem">IR → UV</span>
     </div>
-    <div class="status-led">
+    <div class="status">
       <span class="led"></span>
-      <span>supabase ready</span>
+      <span>supabase</span>
     </div>
   </div>
 
-  <div id="terminal" class="terminal-output">
-    <div>Kairos Terminal v2.1 - Full CRUD Operations</div>
+  <div id="output" class="output">
+    <div>Kairos Terminal v3.0 — Divine Wave Pulse System</div>
+    <div>Type 'help' for commands | 'pulse 7' for full ascension</div>
+    <div>&nbsp;</div>
   </div>
 
   <div class="input-line">
-    <span class="prompt-symbol">➜</span>
-    <input type="text" id="command" placeholder="type 'help' for commands | delete, update, insert, list" autofocus spellcheck="false" autocomplete="off">
+    <span class="prompt">➜</span>
+    <input type="text" id="command" placeholder="pulse 7 | help | add label: body" autofocus spellcheck="false" autocomplete="off">
   </div>
-  <div class="footer-hint">
-    📜 commands: help, list [page], count, search, insert, update, delete, delete_range, delete_all, query, random, forgotten, weave, stats | ↑ history
+
+  <div class="footer">
+    <span>🏛️ pulse [up] [down] [repeat] — Ascend, descend, wave</span>
+    <span id="pulseStatus" class="pulse-indicator">● idle</span>
   </div>
 </div>
 
@@ -161,485 +219,601 @@ const SUPABASE_URL = 'https://kzcucjcyxybypncbdbws.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw';
 
 let db = null;
-const commands = {};
 let commandHistory = [];
 let historyIndex = -1;
+let isPulsing = false;
 
-function printLine(text) {
-  const terminal = document.getElementById('terminal');
-  const line = document.createElement('div');
-  line.textContent = text;
-  terminal.appendChild(line);
-  terminal.scrollTop = terminal.scrollHeight;
-}
-
-function parseCommand(input) {
-  const parts = input.trim().split(/\s+/);
-  const cmd = parts[0].toLowerCase();
-  const args = parts.slice(1);
-  return { cmd, args, rest: args.join(' ') };
-}
-
-async function processCommand(input) {
-  if (!input.trim()) return;
-  
-  const { cmd, args, rest } = parseCommand(input);
-  
-  if (!commands[cmd]) {
-    printLine(`Unknown command: ${cmd}. Type 'help' for available commands.`);
-    return;
-  }
-  
-  try {
-    const result = await commands[cmd](args, rest);
-    if (result) {
-      if (typeof result === 'string' && result.includes('\n')) {
-        result.split('\n').forEach(line => printLine(line));
-      } else {
-        printLine(result);
-      }
+// ===============================
+// DIVINE BANDS CONFIGURATION
+// ===============================
+const DIVINE_BANDS = {
+    'hermes': {
+        index: 1, icon: '✈️', name: 'Hermes', words: '1-10', freq: '4-8 Hz',
+        light: 'Infrared', color: '#e8a87c', domain: 'Messages, Thresholds',
+        targetWords: 10, filler: ['threshold', 'message', 'wing', 'swift', 'crossing', 'caduceus']
+    },
+    'apollo': {
+        index: 2, icon: '☀️', name: 'Apollo', words: '11-30', freq: '8-12 Hz',
+        light: 'Sun Gold', color: '#f4d03f', domain: 'Truth, Oracles',
+        targetWords: 30, filler: ['light', 'truth', 'oracle', 'sun', 'prophecy', 'radiant', 'lyre']
+    },
+    'hephaestus': {
+        index: 3, icon: '🔥', name: 'Hephaestus', words: '31-60', freq: '12-15 Hz',
+        light: 'Orange', color: '#d45500', domain: 'Forge, Craft',
+        targetWords: 60, filler: ['forge', 'hammer', 'anvil', 'fire', 'craft', 'metal', 'bellows']
+    },
+    'demeter': {
+        index: 4, icon: '🌾', name: 'Demeter', words: '61-100', freq: '15-20 Hz',
+        light: 'Green', color: '#6b8e23', domain: 'Growth, Harvest',
+        targetWords: 100, filler: ['harvest', 'seed', 'grain', 'season', 'earth', 'growth', 'nurture']
+    },
+    'poseidon': {
+        index: 5, icon: '🌊', name: 'Poseidon', words: '101-150', freq: '20-30 Hz',
+        light: 'Blue', color: '#2c6e9e', domain: 'Depth, Flow',
+        targetWords: 150, filler: ['depth', 'wave', 'current', 'tide', 'abyss', 'trident', 'ocean']
+    },
+    'athena': {
+        index: 6, icon: '🦉', name: 'Athena', words: '151-220', freq: '30-40 Hz',
+        light: 'Purple', color: '#8e44ad', domain: 'Wisdom, Weaving',
+        targetWords: 220, filler: ['weave', 'strategy', 'wisdom', 'owl', 'tapestry', 'olive', 'aegis']
+    },
+    'zeus': {
+        index: 7, icon: '⚡', name: 'Zeus', words: '221-300', freq: '40-100 Hz',
+        light: 'Ultraviolet', color: '#9b59b6', domain: 'Thunder, Fate',
+        targetWords: 300, filler: ['thunder', 'lightning', 'fate', 'king', 'eagle', 'storm', 'olympus']
     }
-  } catch (err) {
-    printLine(`Error: ${err.message}`);
-  }
+};
+
+function getBandForTurn(turn) {
+    const bands = ['hermes', 'apollo', 'hephaestus', 'demeter', 'poseidon', 'athena', 'zeus'];
+    return bands[turn - 1] || 'zeus';
+}
+
+function getBandInfo(band) {
+    return DIVINE_BANDS[band];
+}
+
+function getFrequencyForBand(band) {
+    const ranges = {
+        hermes: [4, 8], apollo: [8, 12], hephaestus: [12, 15],
+        demeter: [15, 20], poseidon: [20, 30], athena: [30, 40], zeus: [40, 100]
+    };
+    const range = ranges[band];
+    if (!range) return 10;
+    return (range[0] + range[1]) / 2;
+}
+
+function printLine(text, band = null, isThunder = false) {
+    const output = document.getElementById('output');
+    const line = document.createElement('div');
+    line.textContent = text;
+    if (band && DIVINE_BANDS[band]) {
+        line.classList.add(`band-${band}`);
+    }
+    if (isThunder) {
+        line.classList.add('thunder');
+    }
+    output.appendChild(line);
+    output.scrollTop = output.scrollHeight;
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function expandToTarget(text, targetBand) {
+    const config = DIVINE_BANDS[targetBand];
+    let words = text.split(/\s+/);
+    let currentCount = words.length;
+    const targetMin = config.targetWords - 10;
+    
+    if (currentCount >= targetMin) return text;
+    
+    const needed = targetMin - currentCount;
+    const fillerPool = config.filler;
+    let expanded = text;
+    
+    for (let i = 0; i < needed && i < 50; i++) {
+        const filler = fillerPool[Math.floor(Math.random() * fillerPool.length)];
+        expanded += ' ' + filler;
+    }
+    
+    return expanded;
+}
+
+async function synthesizeTurn(band, previousBody, turn, isDescending = false) {
+    const bandInfo = DIVINE_BANDS[band];
+    let body = '';
+    
+    if (turn === 1 && !previousBody) {
+        // Hermes: gather atomic concepts
+        const primitives = ['threshold', 'message', 'wing', 'swift', 'crossing'];
+        const shuffled = primitives.sort(() => 0.5 - Math.random());
+        body = shuffled.slice(0, 3).join(' · ');
+    } else if (previousBody) {
+        body = expandToTarget(previousBody, band);
+    } else {
+        body = `${bandInfo.filler[0]} · ${bandInfo.filler[1]} · ${bandInfo.filler[2]}`;
+    }
+    
+    const wordCount = body.split(/\s+/).length;
+    const frequency = getFrequencyForBand(band);
+    
+    // Store in database
+    const direction = isDescending ? 'descend' : 'ascend';
+    const label = `${band}_wave_${turn}_${Date.now()}`;
+    
+    const { error } = await db.from('terminal_entries').insert({
+        label: label,
+        body: body,
+        word_count: wordCount,
+        divine_band: band,
+        frequency_hz: frequency,
+        light_wavelength: bandInfo.light.toLowerCase().replace(' ', '_'),
+        divine_icon: bandInfo.icon
+    });
+    
+    if (error) console.error('Insert error:', error);
+    
+    // Display
+    const directionIcon = isDescending ? '▼' : '▲';
+    const preview = body.substring(0, 70) + (body.length > 70 ? '...' : '');
+    printLine(`   ${directionIcon} ${bandInfo.icon} ${bandInfo.name}: ${wordCount} words, ${frequency.toFixed(1)}Hz`, band);
+    printLine(`     "${preview}"`, band);
+    
+    return body;
 }
 
 // ===============================
-// COMMAND HANDLERS (v2.1 with CRUD)
+// PULSE COMMAND
 // ===============================
+async function runPulse(upTurns, downTurns, repeats) {
+    if (isPulsing) {
+        printLine('⚠️ Pulse already in progress. Wait for completion.');
+        return;
+    }
+    
+    isPulsing = true;
+    const input = document.getElementById('command');
+    const pulseStatus = document.getElementById('pulseStatus');
+    
+    input.disabled = true;
+    pulseStatus.innerHTML = '● pulsing...';
+    
+    upTurns = Math.min(upTurns, 7);
+    downTurns = Math.min(downTurns, 7);
+    
+    printLine(`\n🏛️ DIVINE WAVE — Up: ${upTurns}, Down: ${downTurns}, Repeats: ${repeats}\n`);
+    
+    let allEntries = [];
+    let finalBand = '';
+    
+    for (let wave = 0; wave < repeats; wave++) {
+        if (wave > 0) {
+            printLine(`\n🌊 WAVE ${wave + 1} of ${repeats}\n`);
+            await sleep(800);
+        }
+        
+        let currentBody = '';
+        
+        // ASCENT
+        for (let turn = 1; turn <= upTurns; turn++) {
+            const band = getBandForTurn(turn);
+            currentBody = await synthesizeTurn(band, currentBody, turn, false);
+            allEntries.push({ band, body: currentBody, turn, direction: 'up' });
+            finalBand = band;
+            
+            if (turn < upTurns) {
+                await sleep(1618);
+            }
+        }
+        
+        // DESCENT
+        if (downTurns > 0) {
+            await sleep(800);
+            for (let step = 1; step <= downTurns; step++) {
+                const turn = upTurns - step;
+                if (turn < 1) break;
+                const band = getBandForTurn(turn);
+                currentBody = await synthesizeTurn(band, currentBody, turn, true);
+                allEntries.push({ band, body: currentBody, turn, direction: 'down' });
+                finalBand = band;
+                
+                if (step < downTurns) {
+                    await sleep(1618);
+                }
+            }
+        }
+        
+        if (wave < repeats - 1) {
+            await sleep(1000);
+        }
+    }
+    
+    // Final summary
+    const totalTurns = allEntries.length;
+    const totalTime = (totalTurns * 1.618).toFixed(1);
+    const finalBandInfo = DIVINE_BANDS[finalBand];
+    
+    printLine(`\n🏆 DIVINE WAVE COMPLETE`, finalBand, finalBand === 'zeus');
+    printLine(`   Turns: ${totalTurns} | Time: ${totalTime}s | Final Band: ${finalBandInfo.icon} ${finalBandInfo.name}`, finalBand);
+    printLine(`   Final entry stored at ${finalBandInfo.freq} | ${finalBandInfo.light}\n`);
+    
+    // Re-enable input
+    input.disabled = false;
+    isPulsing = false;
+    pulseStatus.innerHTML = '● idle';
+    input.focus();
+}
+
+// ===============================
+// COMMAND HANDLERS
+// ===============================
+const commands = {};
 
 commands.help = async () => {
-  return `Available Commands:
-  
-  📖 READ:
-    help        - Show this help
-    list [page] - List entries (20 per page)
-    count       - Show total number of entries
-    search <text> - Search by label or body
-    query [filter] - Query entries (e.g., query label=name)
-    random      - Get random entry
-    forgotten   - Show entries with no relationships
-    weave <label> - Show connections
-    stats       - Database statistics
-  
-  ✍️ WRITE:
-    insert <json> - Add entry (e.g., insert {"label":"name","body":"text"})
-    update <label> <json> - Update entry (e.g., update oldname {"label":"newname","body":"new text"})
-  
-  🗑️ DELETE:
-    delete <label> - Delete by label
-    delete id:<uuid> - Delete by ID
-    delete_range <start> <end> - Delete range from list view
-    delete_all --yes - DELETE EVERYTHING (requires confirmation)
-  
-  🧹 UTILITIES:
-    clear       - Clear terminal output
-    schema      - Show table structure`;
+    return `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                  DIVINE WAVE PULSE SYSTEM v3.0
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🌊 PULSE COMMANDS:
+  pulse 7              → Ascend: Hermes → Zeus (7 turns, 11.3s)
+  pulse 5              → Ascend: Hermes → Poseidon (5 turns, 8.1s)
+  pulse 7 2            → Wave: Up to Zeus, down to Apollo
+  pulse 5 3            → Mountain: Up to Poseidon, down to Hermes
+  pulse 7 7 3          → Trident: Three full waves (Zeus → Hermes ×3)
+
+📝 NATURAL LANGUAGE:
+  add <label>: <body>  → Entry auto-classified by word count
+
+📖 READ:
+  list [page]          → List entries with band & frequency
+  random               → Get random entry
+  search <text>        → Search by label or body
+  weave <label>        → Show connections
+  forgotten            → Show entries with no relationships
+
+📊 ANALYZE:
+  spectrum             → Show distribution across divine bands
+  stats                → Database statistics
+
+🧹 UTILITIES:
+  clear                → Clear terminal output
+  help                 → Show this message
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 THE RULE: Each pulse turn = 1.618 seconds (φ)
+   Each turn builds on the previous, ascending the divine spectrum.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
 };
 
 commands.clear = async () => {
-  document.getElementById('terminal').innerHTML = '';
-  return null;
+    document.getElementById('output').innerHTML = '';
+    return null;
 };
 
-commands.schema = async () => {
-  let output = 'Terminal Database Schema:\n\n';
-  
-  try {
-    const { data, error } = await db.from('terminal_entries').select('*').limit(1);
-    if (error) throw error;
-    if (data && data.length > 0) {
-      output += `✓ terminal_entries: ${Object.keys(data[0]).join(', ')}\n`;
-    } else {
-      output += `✓ terminal_entries: (empty table)\n`;
+commands.pulse = async (args) => {
+    let upTurns = parseInt(args[0]) || 7;
+    let downTurns = parseInt(args[1]) || 0;
+    let repeats = parseInt(args[2]) || 1;
+    
+    if (upTurns < 1 || upTurns > 7) {
+        return 'Error: Up turns must be between 1 and 7. Usage: pulse [up] [down] [repeat]';
     }
-  } catch (err) {
-    output += `❌ terminal_entries: ${err.message}\n`;
-  }
-  
-  try {
-    const { data, error } = await db.from('terminal_relationships').select('*').limit(1);
-    if (error) throw error;
-    if (data && data.length > 0) {
-      output += `✓ terminal_relationships: ${Object.keys(data[0]).join(', ')}\n`;
-    } else {
-      output += `✓ terminal_relationships: (empty table)\n`;
+    
+    if (repeats < 1 || repeats > 5) {
+        return 'Error: Repeats must be between 1 and 5.';
     }
-  } catch (err) {
-    output += `❌ terminal_relationships: ${err.message}\n`;
-  }
-  
-  return output;
+    
+    await runPulse(upTurns, downTurns, repeats);
+    return null;
 };
 
-commands.count = async () => {
-  const { count, error } = await db
-    .from('terminal_entries')
-    .select('*', { count: 'exact', head: true });
-  
-  if (error) return `Error: ${error.message}`;
-  
-  const { count: relCount } = await db
-    .from('terminal_relationships')
-    .select('*', { count: 'exact', head: true });
-  
-  return `📊 Database Summary:
-  Terminal Entries: ${count}
-  Terminal Relationships: ${relCount || 0}
-  
-💡 Use "list 1" to browse entries (20 per page)`;
-};
-
-commands.search = async (args) => {
-  const searchTerm = args.join(' ');
-  if (!searchTerm) return 'Usage: search <text>';
-  
-  const { data, error } = await db
-    .from('terminal_entries')
-    .select('*')
-    .or(`label.ilike.%${searchTerm}%,body.ilike.%${searchTerm}%`)
-    .limit(50);
-  
-  if (error) return `Error: ${error.message}`;
-  if (!data || data.length === 0) return `No matches found for "${searchTerm}"`;
-  
-  let output = `🔍 Found ${data.length} matches for "${searchTerm}":\n\n`;
-  data.forEach(entry => {
-    output += `📝 ${entry.label}\n   ${entry.body?.substring(0, 80) || 'no body'}\n\n`;
-  });
-  
-  if (data.length === 50) {
-    output += `\n💡 Showing first 50 matches. Try a more specific search.`;
-  }
-  
-  return output;
+commands.add = async (args, fullInput) => {
+    const match = fullInput.match(/^add\s+([^:]+):\s*(.+)$/i);
+    if (!match) return 'Usage: add label: body';
+    
+    const label = match[1].trim();
+    const body = match[2].trim();
+    const wordCount = body.split(/\s+/).length;
+    
+    let band = 'hermes';
+    if (wordCount <= 10) band = 'hermes';
+    else if (wordCount <= 30) band = 'apollo';
+    else if (wordCount <= 60) band = 'hephaestus';
+    else if (wordCount <= 100) band = 'demeter';
+    else if (wordCount <= 150) band = 'poseidon';
+    else if (wordCount <= 220) band = 'athena';
+    else band = 'zeus';
+    
+    const bandInfo = DIVINE_BANDS[band];
+    const frequency = getFrequencyForBand(band);
+    
+    const { error } = await db.from('terminal_entries').insert({
+        label: label,
+        body: body,
+        word_count: wordCount,
+        divine_band: band,
+        frequency_hz: frequency,
+        light_wavelength: bandInfo.light.toLowerCase().replace(' ', '_'),
+        divine_icon: bandInfo.icon
+    });
+    
+    if (error) return `Error: ${error.message}`;
+    
+    return `✓ Added "${label}" [${bandInfo.icon} ${bandInfo.name} | ${frequency.toFixed(1)}Hz | ${bandInfo.light}] (${wordCount} words)`;
 };
 
 commands.list = async (args) => {
-  let page = 1;
-  let limit = 20;
-  
-  if (args.length > 0 && !isNaN(parseInt(args[0]))) {
-    page = parseInt(args[0]);
-  }
-  
-  const offset = (page - 1) * limit;
-  
-  const { count, error: countError } = await db
-    .from('terminal_entries')
-    .select('*', { count: 'exact', head: true });
-  
-  if (countError) return `Error: ${countError.message}`;
-  if (count === 0) return 'No entries found.';
-  
-  const totalPages = Math.ceil(count / limit);
-  
-  if (page > totalPages) {
-    return `Page ${page} doesn't exist. Total pages: ${totalPages}. Use "list 1" to start.`;
-  }
-  
-  const { data, error } = await db
-    .from('terminal_entries')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .range(offset, offset + limit - 1);
-  
-  if (error) return `Error: ${error.message}`;
-  
-  let output = `📋 Page ${page}/${totalPages} (${count} total entries):\n\n`;
-  
-  data.forEach((entry, idx) => {
-    const num = offset + idx + 1;
-    const bodyPreview = entry.body?.substring(0, 50) || '—';
-    output += `${num}. ${entry.label}\n   ${bodyPreview}${entry.body?.length > 50 ? '...' : ''}\n`;
-  });
-  
-  output += `\n💡 Commands: "list ${page + 1}" (next), "delete_range ${offset + 1} ${offset + limit}" (delete this page), "search <term>" (find)`;
-  return output;
-};
-
-commands.insert = async (args) => {
-  if (args.length === 0) return 'Usage: insert {"label":"name","body":"content"}';
-  
-  const jsonStr = args.join(' ');
-  try {
-    const data = JSON.parse(jsonStr);
-    if (!data.label) return 'Error: "label" field is required';
-    if (!data.body) data.body = '';
+    let page = 1;
+    let limit = 15;
     
-    const { error } = await db.from('terminal_entries').insert(data);
-    if (error) throw error;
-    return `✓ Inserted entry with label: ${data.label}`;
-  } catch (err) {
-    return `Insert error: ${err.message}\nExample: insert {"label":"my_node","body":"some content"}`;
-  }
-};
-
-commands.update = async (args) => {
-  if (args.length < 2) return 'Usage: update <current_label> {"label":"new_label","body":"new body"}';
-  
-  const currentLabel = args[0];
-  const jsonStr = args.slice(1).join(' ');
-  
-  try {
-    const updates = JSON.parse(jsonStr);
+    if (args.length > 0 && !isNaN(parseInt(args[0]))) {
+        page = parseInt(args[0]);
+    }
     
-    // Build update object
-    const updateData = {};
-    if (updates.label) updateData.label = updates.label;
-    if (updates.body) updateData.body = updates.body;
+    const offset = (page - 1) * limit;
     
-    if (Object.keys(updateData).length === 0) return 'No valid fields to update (label or body)';
+    const { count, error: countError } = await db
+        .from('terminal_entries')
+        .select('*', { count: 'exact', head: true });
     
-    const { error, count } = await db
-      .from('terminal_entries')
-      .update(updateData)
-      .eq('label', currentLabel);
+    if (countError) return `Error: ${countError.message}`;
+    if (count === 0) return 'No entries found. Use "add label: body" or "pulse 7".';
     
-    if (error) throw error;
-    if (count === 0) return `No entry found with label: ${currentLabel}`;
+    const totalPages = Math.ceil(count / limit);
+    if (page > totalPages) return `Page ${page} doesn't exist. Total pages: ${totalPages}.`;
     
-    return `✓ Updated entry: ${currentLabel} → ${updates.label || currentLabel}`;
-  } catch (err) {
-    return `Update error: ${err.message}\nExample: update oldlabel {"label":"newlabel","body":"new content"}`;
-  }
-};
-
-commands.delete = async (args) => {
-  if (args.length === 0) return 'Usage: delete <label> or delete id:<uuid>';
-  
-  const deleteTarget = args[0];
-  
-  let query;
-  if (deleteTarget.startsWith('id:')) {
-    const id = deleteTarget.substring(3);
-    query = db.from('terminal_entries').delete().eq('id', id);
-  } else {
-    query = db.from('terminal_entries').delete().eq('label', deleteTarget);
-  }
-  
-  const { error, count } = await query;
-  
-  if (error) return `Delete error: ${error.message}`;
-  if (count === 0) return `No entry found with ${deleteTarget.startsWith('id:') ? 'ID' : 'label'}: ${deleteTarget}`;
-  
-  return `✓ Deleted ${count} entry(s) with ${deleteTarget.startsWith('id:') ? 'ID' : 'label'}: ${deleteTarget}`;
-};
-
-commands.delete_range = async (args) => {
-  if (args.length < 2) return 'Usage: delete_range <start_number> <end_number> (from list command)';
-  
-  const start = parseInt(args[0]);
-  const end = parseInt(args[1]);
-  
-  if (isNaN(start) || isNaN(end)) return 'Start and end must be numbers';
-  if (start > end) return 'Start must be less than or equal to end';
-  
-  const { data: entries, error: fetchError } = await db
-    .from('terminal_entries')
-    .select('id, label')
-    .order('created_at', { ascending: false });
-  
-  if (fetchError) return `Error: ${fetchError.message}`;
-  if (!entries || entries.length === 0) return 'No entries found';
-  
-  if (start < 1 || end > entries.length) {
-    return `Range ${start}-${end} is invalid. Valid range: 1-${entries.length}`;
-  }
-  
-  const toDelete = entries.slice(start - 1, end);
-  const idsToDelete = toDelete.map(e => e.id);
-  const labelsToDelete = toDelete.map(e => e.label);
-  
-  const { error, count } = await db
-    .from('terminal_entries')
-    .delete()
-    .in('id', idsToDelete);
-  
-  if (error) return `Error: ${error.message}`;
-  
-  return `✓ Deleted ${count} entries (rows ${start}-${end}):\n   ${labelsToDelete.join(', ')}`;
-};
-
-commands.delete_all = async (args) => {
-  const confirm = args[0];
-  if (confirm !== '--yes') {
-    return '⚠️ DANGER: This will delete ALL entries. Type "delete_all --yes" to confirm.';
-  }
-  
-  const { count, error } = await db
-    .from('terminal_entries')
-    .delete()
-    .neq('id', '00000000-0000-0000-0000-000000000000');
-  
-  if (error) return `Error: ${error.message}`;
-  return `✓ Deleted ${count} entries. The hoard is empty.`;
-};
-
-commands.query = async (args) => {
-  if (args.length === 0) {
-    const { data, error } = await db.from('terminal_entries').select('*').limit(20);
+    const { data, error } = await db
+        .from('terminal_entries')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
+    
     if (error) return `Error: ${error.message}`;
-    if (!data || data.length === 0) return 'No entries found';
-    return data.map(row => `${row.label}: ${row.body?.substring(0, 60) || 'no body'}`).join('\n');
-  }
-  
-  const filter = args[0];
-  if (!filter.includes('=')) return 'Usage: query label=value';
-  
-  const [key, value] = filter.split('=');
-  if (key !== 'label') return 'Only label filtering is supported';
-  
-  const { data, error } = await db.from('terminal_entries').select('*').eq('label', value);
-  if (error) return `Error: ${error.message}`;
-  if (!data || data.length === 0) return `No entry found with label: ${value}`;
-  
-  return data.map(row => `Label: ${row.label}\nID: ${row.id}\nBody: ${row.body}\nCreated: ${row.created_at}`).join('\n---\n');
+    
+    let output = `📋 Page ${page}/${totalPages} (${count} total entries):\n\n`;
+    
+    for (let i = 0; i < data.length; i++) {
+        const entry = data[i];
+        const band = entry.divine_band || 'hermes';
+        const bandInfo = DIVINE_BANDS[band];
+        const freq = entry.frequency_hz || getFrequencyForBand(band);
+        const num = offset + i + 1;
+        const preview = entry.body.substring(0, 55) + (entry.body.length > 55 ? '...' : '');
+        
+        output += `${num}. ${bandInfo.icon} ${entry.label} [${freq.toFixed(1)}Hz | ${bandInfo.light}]\n   ${preview}\n\n`;
+    }
+    
+    return output;
 };
 
 commands.random = async () => {
-  const { data, error } = await db.from('terminal_entries').select('*');
-  if (error) return `Error: ${error.message}`;
-  if (!data || data.length === 0) return 'No entries found. Insert some data first.';
-  
-  const random = data[Math.floor(Math.random() * data.length)];
-  return `🎲 Random Entry:\nLabel: ${random.label}\nID: ${random.id}\nBody: ${random.body}\nCreated: ${random.created_at}`;
+    const { data, error } = await db.from('terminal_entries').select('*');
+    if (error) return `Error: ${error.message}`;
+    if (!data || data.length === 0) return 'No entries found.';
+    
+    const random = data[Math.floor(Math.random() * data.length)];
+    const band = random.divine_band || 'hermes';
+    const bandInfo = DIVINE_BANDS[band];
+    const freq = random.frequency_hz || getFrequencyForBand(band);
+    
+    return `${bandInfo.icon} Random Entry [${freq.toFixed(1)}Hz | ${bandInfo.light}]:\nLabel: ${random.label}\nBody: ${random.body}\nWords: ${random.word_count}\nCreated: ${random.created_at}`;
 };
 
-commands.forgotten = async () => {
-  try {
-    const { data: entries, error: entriesError } = await db.from('terminal_entries').select('id, label, body');
-    if (entriesError) return `Error: ${entriesError.message}`;
-    if (!entries || entries.length === 0) return 'No entries found.';
+commands.spectrum = async () => {
+    const { data, error } = await db.from('terminal_entries').select('divine_band');
+    if (error) return `Error: ${error.message}`;
     
-    const { data: relations, error: relError } = await db.from('terminal_relationships').select('source_id');
-    if (relError && !relError.message.includes('does not exist')) {
-      return `Error checking relationships: ${relError.message}`;
+    const counts = { hermes: 0, apollo: 0, hephaestus: 0, demeter: 0, poseidon: 0, athena: 0, zeus: 0 };
+    for (const entry of data) {
+        const band = entry.divine_band || 'hermes';
+        if (counts[band] !== undefined) counts[band]++;
     }
     
-    const usedIds = new Set((relations || []).map(r => r.source_id));
-    const forgotten = entries.filter(e => !usedIds.has(e.id));
+    let output = `🌈 DIVINE SPECTRUM\n\n`;
+    for (const [band, count] of Object.entries(counts)) {
+        const info = DIVINE_BANDS[band];
+        const barLength = Math.min(count, 30);
+        const bar = '█'.repeat(barLength);
+        const empty = '░'.repeat(30 - barLength);
+        output += `${info.icon} ${info.name.padEnd(10)} ${info.freq.padEnd(8)} ${bar}${empty} ${count} entries\n`;
+    }
     
-    if (forgotten.length === 0) return 'No forgotten entries found. All entries have relationships.';
-    
-    let output = `🌑 Forgotten Entries (${forgotten.length}):\n`;
-    forgotten.slice(0, 20).forEach(e => {
-      output += `  - ${e.label}: ${e.body ? e.body.substring(0, 50) : 'no body'}\n`;
-    });
-    if (forgotten.length > 20) output += `\n  ... and ${forgotten.length - 20} more.`;
+    output += `\n📊 Total: ${data.length} entries classified across 7 divine bands.`;
     return output;
-  } catch (err) {
-    return `Error: ${err.message}`;
-  }
-};
-
-commands.weave = async (args) => {
-  if (args.length === 0) return 'Usage: weave <label>';
-  
-  const label = args[0];
-  
-  try {
-    const { data: entry, error: entryError } = await db
-      .from('terminal_entries')
-      .select('id, label')
-      .eq('label', label)
-      .single();
-    
-    if (entryError) return `Entry not found: ${label}`;
-    
-    const { data: rel, error: relError } = await db
-      .from('terminal_relationships')
-      .select('target_id, type')
-      .eq('source_id', entry.id);
-    
-    if (relError) return `Error: ${relError.message}`;
-    if (!rel || rel.length === 0) return `No connections found for "${label}".`;
-    
-    const targetIds = rel.map(r => r.target_id);
-    const { data: targets, error: targetsError } = await db
-      .from('terminal_entries')
-      .select('label, body')
-      .in('id', targetIds);
-    
-    if (targetsError) return `Error: ${targetsError.message}`;
-    
-    let output = `🔗 Connections from "${label}":\n`;
-    targets.forEach((target, idx) => {
-      output += `  → ${target.label} (${rel[idx].type})\n`;
-      if (target.body) output += `    "${target.body.substring(0, 60)}"\n`;
-    });
-    return output;
-  } catch (err) {
-    return `Error: ${err.message}`;
-  }
 };
 
 commands.stats = async () => {
-  const { count: entryCount, error: entryError } = await db.from('terminal_entries').select('*', { count: 'exact', head: true });
-  if (entryError) return `Error: ${entryError.message}`;
-  
-  const { count: relCount, error: relError } = await db.from('terminal_relationships').select('*', { count: 'exact', head: true });
-  if (relError && !relError.message.includes('does not exist')) return `Error: ${relError.message}`;
-  
-  return `📊 Database Statistics:\n\nTerminal Entries: ${entryCount}\nTerminal Relationships: ${relCount || 0}\n\n💡 Type "list 1" to browse entries.`;
+    const { count, error } = await db.from('terminal_entries').select('*', { count: 'exact', head: true });
+    if (error) return `Error: ${error.message}`;
+    
+    return `📊 Database Statistics\n\nTerminal Entries: ${count}\nDivine Bands: 7 (Hermes → Zeus)\nPulse turns: ${Math.floor(count / 7)} complete waves possible\n\nType "pulse 7" to generate a full divine wave.`;
 };
+
+commands.search = async (args) => {
+    const searchTerm = args.join(' ');
+    if (!searchTerm) return 'Usage: search <text>';
+    
+    const { data, error } = await db
+        .from('terminal_entries')
+        .select('*')
+        .or(`label.ilike.%${searchTerm}%,body.ilike.%${searchTerm}%`)
+        .limit(30);
+    
+    if (error) return `Error: ${error.message}`;
+    if (!data || data.length === 0) return `No matches found for "${searchTerm}"`;
+    
+    let output = `🔍 Found ${data.length} matches:\n\n`;
+    for (const entry of data) {
+        const band = entry.divine_band || 'hermes';
+        const bandInfo = DIVINE_BANDS[band];
+        const freq = entry.frequency_hz || getFrequencyForBand(band);
+        output += `${bandInfo.icon} ${entry.label} [${freq.toFixed(1)}Hz] — ${entry.body.substring(0, 60)}${entry.body.length > 60 ? '...' : ''}\n`;
+    }
+    return output;
+};
+
+commands.weave = async (args) => {
+    if (args.length === 0) return 'Usage: weave <label>';
+    const label = args[0];
+    
+    try {
+        const { data: entry, error: entryError } = await db
+            .from('terminal_entries')
+            .select('id, label')
+            .eq('label', label)
+            .single();
+        
+        if (entryError) return `Entry not found: ${label}`;
+        
+        const { data: rel, error: relError } = await db
+            .from('terminal_relationships')
+            .select('target_id, type')
+            .eq('source_id', entry.id);
+        
+        if (relError) return `Error: ${relError.message}`;
+        if (!rel || rel.length === 0) return `No connections found for "${label}".`;
+        
+        const targetIds = rel.map(r => r.target_id);
+        const { data: targets, error: targetsError } = await db
+            .from('terminal_entries')
+            .select('label')
+            .in('id', targetIds);
+        
+        if (targetsError) return `Error: ${targetsError.message}`;
+        
+        let output = `🔗 Connections from "${label}":\n`;
+        for (let i = 0; i < targets.length; i++) {
+            output += `  → ${targets[i].label} (${rel[i].type})\n`;
+        }
+        return output;
+    } catch (err) {
+        return `Error: ${err.message}`;
+    }
+};
+
+commands.forgotten = async () => {
+    try {
+        const { data: entries, error: entriesError } = await db.from('terminal_entries').select('id, label, body, word_count');
+        if (entriesError) return `Error: ${entriesError.message}`;
+        if (!entries || entries.length === 0) return 'No entries found.';
+        
+        const { data: relations, error: relError } = await db.from('terminal_relationships').select('source_id');
+        if (relError && !relError.message.includes('does not exist')) {
+            return `Error checking relationships: ${relError.message}`;
+        }
+        
+        const usedIds = new Set((relations || []).map(r => r.source_id));
+        const forgotten = entries.filter(e => !usedIds.has(e.id));
+        
+        if (forgotten.length === 0) return 'No forgotten entries found. All entries have connections.';
+        
+        let output = `🌑 Forgotten Entries (${forgotten.length}):\n\n`;
+        for (const entry of forgotten.slice(0, 20)) {
+            const band = entry.divine_band || 'hermes';
+            const bandInfo = DIVINE_BANDS[band];
+            output += `${bandInfo.icon} ${entry.label} — ${entry.body.substring(0, 50)}${entry.body.length > 50 ? '...' : ''}\n`;
+        }
+        if (forgotten.length > 20) output += `\n... and ${forgotten.length - 20} more.`;
+        return output;
+    } catch (err) {
+        return `Error: ${err.message}`;
+    }
+};
+
+// ===============================
+// PROCESS COMMAND
+// ===============================
+async function processCommand(input) {
+    if (!input.trim()) return;
+    if (isPulsing) {
+        printLine('⚠️ Pulse in progress. Please wait for completion.');
+        return;
+    }
+    
+    // Check for add command
+    if (input.toLowerCase().startsWith('add ')) {
+        const result = await commands.add(null, input);
+        if (result) printLine(result);
+        return;
+    }
+    
+    const parts = input.trim().split(/\s+/);
+    const cmd = parts[0].toLowerCase();
+    const args = parts.slice(1);
+    
+    if (!commands[cmd]) {
+        printLine(`Unknown command: ${cmd}. Type 'help' for available commands.`);
+        return;
+    }
+    
+    try {
+        const result = await commands[cmd](args, input);
+        if (result) printLine(result);
+    } catch (err) {
+        printLine(`Error: ${err.message}`);
+    }
+}
 
 // ===============================
 // INITIALIZATION
 // ===============================
-window.addEventListener('DOMContentLoaded', () => {
-  const input = document.getElementById('command');
-  
-  if (!window.supabase) {
-    printLine('ERROR: Supabase client not loaded');
-    return;
-  }
-  
-  db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  
-  printLine('Kairos Terminal v2.1 - Full CRUD Operations');
-  printLine('✓ Connected to Supabase');
-  printLine('✓ Added: update, delete, delete_range, delete_all commands');
-  printLine('');
-  printLine('Type "help" to see all commands\n');
-  
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      const val = input.value;
-      
-      if (val.trim()) {
-        printLine(`> ${val}`);
-        processCommand(val);
+window.addEventListener('DOMContentLoaded', async () => {
+    const input = document.getElementById('command');
+    
+    if (!window.supabase) {
+        printLine('ERROR: Supabase client not loaded');
+        return;
+    }
+    
+    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    printLine('Kairos Terminal v3.0 — Divine Wave Pulse System');
+    printLine('✓ Connected to Supabase');
+    printLine('✓ 7 Divine Bands: Hermes (4Hz) → Apollo → Hephaestus → Demeter → Poseidon → Athena → Zeus (100Hz)');
+    printLine('✓ Pulse system: Each turn = 1.618 seconds (φ)');
+    printLine('');
+    printLine('Try: pulse 7          — Full ascension to Zeus (11.3 seconds)');
+    printLine('     pulse 7 2        — Wave up to Zeus, down to Apollo');
+    printLine('     pulse 5 3        — Mountain up to Poseidon, down to Hermes');
+    printLine('     pulse 7 7 3      — Three full waves (Trident)');
+    printLine('');
+    
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const val = input.value;
+            if (val.trim()) {
+                printLine(`> ${val}`);
+                processCommand(val);
+                commandHistory.push(val);
+                historyIndex = commandHistory.length;
+            }
+            input.value = '';
+        }
         
-        commandHistory.push(val);
-        historyIndex = commandHistory.length;
-      }
-      
-      input.value = '';
-    }
+        if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (historyIndex > 0) {
+                historyIndex--;
+                input.value = commandHistory[historyIndex];
+            }
+        }
+        
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (historyIndex < commandHistory.length - 1) {
+                historyIndex++;
+                input.value = commandHistory[historyIndex];
+            } else if (historyIndex === commandHistory.length - 1) {
+                historyIndex++;
+                input.value = '';
+            }
+        }
+    });
     
-    if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      if (historyIndex > 0) {
-        historyIndex--;
-        input.value = commandHistory[historyIndex];
-      }
-    }
-    
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      if (historyIndex < commandHistory.length - 1) {
-        historyIndex++;
-        input.value = commandHistory[historyIndex];
-      } else if (historyIndex === commandHistory.length - 1) {
-        historyIndex++;
-        input.value = '';
-      }
-    }
-  });
-  
-  input.focus();
+    input.focus();
 });
 </script>
 </body>
