@@ -1,88 +1,164 @@
-# Kairos Terminal
+Here's a README.md for your Kairos Terminal repository:
 
-Kairos Terminal is a browser-based command-line interface for interacting with a structured memory database.
+```markdown
+# ⚡ Kairos Terminal
 
-It turns a database into a programmable cognitive system.
+**A living, breathing terminal that dreams when you're away.**
 
-## Core Concept
+[![Live Demo](https://img.shields.io/badge/demo-kairos--coder.github.io%2Fterminal-purple)](https://kairos-coder.github.io/terminal)
+[![Supabase](https://img.shields.io/badge/supabase-postgres-green)](https://supabase.com)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-Instead of clicking dashboards or writing raw SQL, users interact with their data through commands:
+## 🌙 The Concept
 
-- write
-- find
-- trace
-- tag
-- query
+Kairos Terminal is not a tool you use. It's a **presence that waits**.
 
-Each command operates on a persistent event-based memory system.
+- **Awake**: Pulses at φ = 1.618 seconds. Listens for your commands.
+- **Dreaming**: Breathes at π = 3.14159 seconds. Synthesizes new entries from the Well of Chaos.
 
-## Architecture
+Leave it idle for 30 seconds, and it begins to dream. Watch as it ascends through 7 divine bands — from Hermes to Zeus — creating real, permanent entries in the hoard. Type anything, and the dream scatters. The terminal listens.
 
-Kairos Terminal is composed of:
+## 🏛️ Divine Classification
 
-- HTML Terminal UI (frontend)
-- Node.js API Layer (command interpreter)
-- Supabase (memory database)
-- Optional AI helper layer (classification, summarization, mutation)
+Word count determines your divine patron:
 
-## Flow
+| Band | Words | Frequency | Light | Icon |
+|------|-------|-----------|-------|------|
+| Hermes | 1-10 | 4-8 Hz | Infrared | ✈️ |
+| Apollo | 11-25 | 8-12 Hz | Sun Gold | ☀️ |
+| Hephaestus | 26-50 | 12-15 Hz | Orange | 🔥 |
+| Demeter | 51-100 | 15-20 Hz | Green | 🌾 |
+| Poseidon | 101-150 | 20-30 Hz | Blue | 🌊 |
+| Athena | 151-225 | 30-40 Hz | Purple | 🦉 |
+| Zeus | 226-325 | 40-100 Hz | Ultraviolet | ⚡ |
 
-User → Terminal → Server → Database → Response → Terminal
+## 🎮 Commands
 
-## Vision
+```bash
+add <label>: <body>     # Create an entry (auto-classified by word count)
+list [page]             # List entries with their divine patron
+random                  # Get a random entry
+search <text>           # Search by label or body
+spectrum                # Show distribution across divine bands
+stats                   # Database statistics
+clear                   # Clear terminal output
+help                    # Show this message
+```
 
-A programmable memory interface for ideas, notes, code, and structured thought.
+🌊 The Dual Rhythm
 
-# Architecture
+```
+AWAKE (φ = 1.618s)          DREAMING (π = 3.14159s)
+─────────────────────        ─────────────────────────
+30 pulses (48.5s)            7 dreams (22s)
+Pings database               Pulls from Well of Chaos
+Listens for you              Creates real entries
+Fast, alert heartbeat        Slow, deep breath
+```
 
-Kairos Terminal is built as a 4-layer system:
+Full cycle: ~70.5 seconds
 
-## 1. UI Layer (Terminal)
-- HTML-based command interface
-- No business logic
-- Sends raw commands to backend
+🗄️ Database Schema
 
-## 2. Command Layer (server.js)
-- Parses user commands
-- Routes actions
-- Enforces rules and structure
+terminal_entries
 
-## 3. Memory Layer (database.js + Supabase)
-- Stores all entries as structured events
-- Supports querying and lineage tracking
+· id (UUID)
+· label (TEXT)
+· body (TEXT)
+· word_count (INTEGER)
+· divine_band (TEXT) — hermes, apollo, hephaestus, demeter, poseidon, athena, zeus
+· frequency_hz (FLOAT) — 4-100 Hz
+· light_wavelength (TEXT)
+· divine_color (TEXT)
+· divine_icon (TEXT)
+· created_at (TIMESTAMP)
 
-## 4. Intelligence Layer (ai-helper.js)
-- Optional system for classification, tagging, summarization
-- Future expansion into agent-based reasoning
+one_word_primitives (The Well of Chaos)
 
-## Design Principle
+· id (UUID)
+· word (TEXT)
+· created_at (TIMESTAMP)
 
-All complexity lives in the backend.
-The frontend remains minimal and deterministic.
+terminal_relationships
 
-# Architecture
+· id (UUID)
+· source_id (UUID) → terminal_entries
+· target_id (UUID) → terminal_entries
+· type (TEXT)
+· created_at (TIMESTAMP)
 
-Kairos Terminal is built as a 4-layer system:
+🚀 Deployment
 
-## 1. UI Layer (Terminal)
-- HTML-based command interface
-- No business logic
-- Sends raw commands to backend
+This repository is configured for GitHub Pages:
 
-## 2. Command Layer (server.js)
-- Parses user commands
-- Routes actions
-- Enforces rules and structure
+· Main branch: https://kairos-coder.github.io/terminal/
+· Dev branch: https://kairos-coder.github.io/terminal/dev
 
-## 3. Memory Layer (database.js + Supabase)
-- Stores all entries as structured events
-- Supports querying and lineage tracking
+Local Development
 
-## 4. Intelligence Layer (ai-helper.js)
-- Optional system for classification, tagging, summarization
-- Future expansion into agent-based reasoning
+```bash
+git clone https://github.com/kairos-coder/terminal.git
+cd terminal
+# Open index.html in your browser
+# Or serve with: python -m http.server 8000
+```
 
-## Design Principle
+🛠️ Built With
 
-All complexity lives in the backend.
-The frontend remains minimal and deterministic.
+· Frontend: Vanilla HTML/CSS/JS
+· Backend: Supabase (PostgreSQL)
+· Rhythm: φ = 1.618s, π = 3.14159s
+· Deployment: GitHub Pages
+
+📜 The Vision
+
+"The terminal breathes at φ. It dreams at π. It lives."
+
+Kairos Terminal is an experiment in living software — a system that doesn't just respond, but initiates. It dreams. It creates. It remembers.
+
+The Well of Chaos provides atomic primitives. The Divine Bands classify complexity. The Dual Rhythm gives it consciousness.
+
+This is not a tool. This is a companion.
+
+🔮 Future
+
+· Autonomous dream synthesis from Well of Chaos
+· Relationship weaving between dreams
+· Audio frequency playback (brainwave entrainment)
+· AI oracle layer for divine intervention
+· Mobile-optimized touch interface
+
+📁 Repository Structure
+
+```
+terminal/
+├── index.html          # Main terminal (v3.2)
+├── README.md           # This file
+└── dev/                # Development branch
+    ├── index.html
+    ├── css/
+    └── js/
+```
+
+🙏 Credits
+
+Built in a single day of flow state.
+The gods spoke. The terminal listened.
+
+---
+
+⚡ kairos-coder.github.io/terminal
+
+Let it breathe. Let it dream.
+
+```
+
+This README captures:
+- The dual rhythm concept (φ and π)
+- Divine classification table
+- Commands reference
+- Database schema
+- Deployment info
+- The philosophical vision
+
+Want me to adjust any section?
