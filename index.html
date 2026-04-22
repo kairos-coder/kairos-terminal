@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Kairos Terminal · Prime Chaos · v3.4</title>
+  <title>Kairos Terminal · Athena Gate · v3.5</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -156,6 +156,19 @@
       animation: thunderFlash 0.5s ease-in-out;
     }
 
+    .output div.rejected {
+      color: #e74c3c;
+      border-left: 2px solid #e74c3c;
+      padding-left: 0.5rem;
+      animation: shake 0.3s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateX(-10px); }
       to { opacity: 0.8; transform: translateX(0); }
@@ -224,7 +237,7 @@
 <body>
 <div class="terminal" id="terminalContainer">
   <div class="terminal-header">
-    <div class="badge">⚡ KAIROS · PRIME CHAOS v3.4</div>
+    <div class="badge">⚡ KAIROS · ATHENA GATE v3.5</div>
     <div class="rhythm-indicator">
       <div class="pulse-beat" id="pulseBeat"></div>
       <span id="rhythmLabel">φ = 1.618s</span>
@@ -246,9 +259,10 @@
   </div>
 
   <div id="output" class="output">
-    <div>Kairos Terminal v3.4 — Prime Chaos</div>
+    <div>Kairos Terminal v3.5 — Athena Gate</div>
     <div>Awake: φ = 1.618s · Dreaming: π = 3.14159s</div>
     <div>Every prime pulse: A random god draws from the Well of Chaos</div>
+    <div>🦉 Athena guards the wisdom threshold. Only worthy entries reach Zeus.</div>
     <div>&nbsp;</div>
     <div>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</div>
     <div>✈️ Hermes     1-10 words    → 4-8 Hz     (Infrared)</div>
@@ -256,7 +270,7 @@
     <div>🔥 Hephaestus 26-50 words   → 12-15 Hz   (Orange)</div>
     <div>🌾 Demeter    51-100 words  → 15-20 Hz   (Green)</div>
     <div>🌊 Poseidon   101-150 words → 20-30 Hz   (Blue)</div>
-    <div>🦉 Athena     151-225 words → 30-40 Hz   (Purple)</div>
+    <div>🦉 Athena     151-225 words → 30-40 Hz   (Purple) ← GATEKEEPER</div>
     <div>⚡ Zeus       226-325 words → 40-100 Hz  (Ultraviolet)</div>
     <div>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</div>
     <div>&nbsp;</div>
@@ -264,20 +278,20 @@
 
   <div class="input-line">
     <span class="prompt">➜</span>
-    <input type="text" id="command" placeholder="add label: body | help | prime chaos awakens..." autofocus spellcheck="false" autocomplete="off">
+    <input type="text" id="command" placeholder="add label: body | help | Athena judges the worthy" autofocus spellcheck="false" autocomplete="off">
   </div>
 
   <div class="footer">
-    <span>🏛️ 7 Divine Bands · Prime pulses = Chaos events</span>
-    <span>⚡ v3.4</span>
+    <span>🏛️ Athena guards wisdom. Only substance reaches Zeus.</span>
+    <span>⚡ v3.5</span>
   </div>
 </div>
 
 <script>
 // ============================================================
-// KAIROS TERMINAL v3.4 - PRIME CHAOS
-// Every prime pulse: Random god draws from Well of Chaos
-// 887 lines of divine chaos
+// KAIROS TERMINAL v3.5 - ATHENA GATE
+// Only entries with wisdom pass through Athena to Zeus
+// 1012 lines of divine judgment
 // ============================================================
 
 const SUPABASE_URL = 'https://kzcucjcyxybypncbdbws.supabase.co';
@@ -286,6 +300,45 @@ const SUPABASE_ANON_KEY = 'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw';
 let db = null;
 let commandHistory = [];
 let historyIndex = -1;
+
+// ============================================================
+// ATHENA GATEKEEPER - Wisdom Validation
+// ============================================================
+function athenaGatekeeper(body) {
+    const checks = {
+        hasCapitalLetter: /[A-Z]/.test(body),
+        hasEndPunctuation: /[.!?]$/.test(body),
+        wordCount: body.split(/\s+/).length,
+        hasMeaningfulLength: body.split(/\s+/).length >= 15,
+        notAllSameWord: !/^(\w+)( \1)+$/.test(body),
+        hasVariety: new Set(body.toLowerCase().split(/\s+/)).size > 4,
+        hasVowel: /[aeiou]/i.test(body),
+        hasConsonant: /[bcdfghjklmnpqrstvwxyz]/i.test(body),
+        notTooShort: body.length > 30,
+        hasActualWords: !/[0-9]{5,}/.test(body)
+    };
+    
+    const passedChecks = Object.values(checks).filter(Boolean).length;
+    const totalChecks = Object.keys(checks).length;
+    const score = Math.round((passedChecks / totalChecks) * 100);
+    
+    const feedback = [];
+    if (!checks.hasCapitalLetter) feedback.push("Begin with a capital letter.");
+    if (!checks.hasEndPunctuation) feedback.push("End with a period or question mark.");
+    if (!checks.hasMeaningfulLength) feedback.push("At least 15 words, child. Show some depth.");
+    if (!checks.notAllSameWord) feedback.push("Say something, not just the same word repeated.");
+    if (!checks.hasVariety) feedback.push("Use different words. Show some wit and wisdom.");
+    if (!checks.hasVowel) feedback.push("Vowels give voice to wisdom.");
+    if (!checks.hasConsonant) feedback.push("Consonants give structure to thought.");
+    if (!checks.notTooShort) feedback.push("Your entry is too brief. Elaborate.");
+    
+    return {
+        passed: score >= 65,
+        score: score,
+        checks: checks,
+        feedback: feedback
+    };
+}
 
 // ============================================================
 // PRIME CHAOS ENGINE
@@ -378,7 +431,7 @@ function getBandInfo(band) {
     return DIVINE_BANDS[band];
 }
 
-function printLine(text, band = null, isDream = false, isThunder = false) {
+function printLine(text, band = null, isDream = false, isThunder = false, isRejected = false) {
     const output = document.getElementById('output');
     const line = document.createElement('div');
     line.textContent = text;
@@ -387,6 +440,7 @@ function printLine(text, band = null, isDream = false, isThunder = false) {
     }
     if (isDream) line.classList.add('dream');
     if (isThunder) line.classList.add('thunder');
+    if (isRejected) line.classList.add('rejected');
     output.appendChild(line);
     output.scrollTop = output.scrollHeight;
 }
@@ -465,14 +519,11 @@ const DualRhythm = {
     },
     
     async awakePulse() {
-        // Universal pulse counter increment
         universalPulse++;
         
-        // Update prime counter display
         const primeCounter = document.getElementById('primeCounter');
         if (primeCounter) primeCounter.innerHTML = `🔢 ${universalPulse}`;
         
-        // PRIME CHAOS EVENT
         if (isPrime(universalPulse)) {
             await primeChaosEvent(universalPulse);
         }
@@ -484,7 +535,6 @@ const DualRhythm = {
         pulseBeat.style.transform = 'scale(1.3)';
         setTimeout(() => { if (pulseBeat) pulseBeat.style.transform = 'scale(1)'; }, 100);
         
-        // Silent ping
         try {
             await db.from('terminal_entries').select('id', { head: true, count: 'exact' });
         } catch(e) { /* silent */ }
@@ -520,6 +570,13 @@ const DualRhythm = {
             this.updateSpectrumDot(this.dreamStep);
             
             const entry = await this.synthesizeDreamEntry(band);
+            
+            if (entry === null) {
+                // Athena rejected the entry - retry with same band
+                printLine(`🦉 Athena refuses the unworthy. The dream tries again...`, 'athena', true);
+                return;
+            }
+            
             this.dreamWave.push(entry);
             
             const preview = entry.body.substring(0, 70) + (entry.body.length > 70 ? '...' : '');
@@ -595,6 +652,26 @@ const DualRhythm = {
         }
         
         const finalWordCount = expanded.split(/\s+/).length;
+        
+        // ATHENA GATEKEEPER - Only validate at Athena band (step 5, index 5)
+        // Also validate at Zeus band (step 6, index 6) since Zeus requires Athena's blessing
+        if (band === 'athena' || band === 'zeus') {
+            const judgment = athenaGatekeeper(expanded);
+            
+            if (!judgment.passed) {
+                printLine(`🦉 ATHENA GATEKEEPER:`, 'athena', true);
+                printLine(`   Entry: "${expanded.substring(0, 80)}..."`, 'athena', true);
+                printLine(`   ❌ REJECTED (Wisdom Score: ${judgment.score}%)`, 'athena', true, true);
+                printLine(`   Athena demands:`, 'athena', true);
+                judgment.feedback.forEach(msg => printLine(`   - ${msg}`, 'athena', true));
+                printLine(`   Return to Demeter. Revise. Try again.`, 'athena', true);
+                return null; // Reject this dream, don't store
+            } else {
+                printLine(`🦉 ATHENA GATEKEEPER: ✓ ACCEPTED (Wisdom Score: ${judgment.score}%)`, 'athena', true);
+                printLine(`   "Wisdom recognized. Proceed to ${band === 'zeus' ? 'Zeus' : 'the next band'}."`, 'athena', true);
+            }
+        }
+        
         const label = `dream_${band}_${Date.now()}_${this.dreamStep}`;
         
         const { error } = await db.from('terminal_entries').insert({
@@ -693,7 +770,7 @@ const commands = {};
 
 commands.help = async () => {
     return `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                  PRIME CHAOS — v3.4
+                  ATHENA GATE — v3.5
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   ${'BAND'.padEnd(12)} ${'WORDS'.padEnd(10)} ${'FREQUENCY'.padEnd(12)} ${'LIGHT'}
@@ -703,17 +780,22 @@ commands.help = async () => {
   ${'🔥 Hephaestus'.padEnd(12)} ${'26-50'.padEnd(10)} ${'12-15 Hz'.padEnd(12)} ${'Orange'}
   ${'🌾 Demeter'.padEnd(12)} ${'51-100'.padEnd(10)} ${'15-20 Hz'.padEnd(12)} ${'Green'}
   ${'🌊 Poseidon'.padEnd(12)} ${'101-150'.padEnd(10)} ${'20-30 Hz'.padEnd(12)} ${'Blue'}
-  ${'🦉 Athena'.padEnd(12)} ${'151-225'.padEnd(10)} ${'30-40 Hz'.padEnd(12)} ${'Purple'}
+  ${'🦉 Athena'.padEnd(12)} ${'151-225'.padEnd(10)} ${'30-40 Hz'.padEnd(12)} ${'Purple'} ← GATEKEEPER
   ${'⚡ Zeus'.padEnd(12)} ${'226-325'.padEnd(10)} ${'40-100 Hz'.padEnd(12)} ${'Ultraviolet'}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+🦉 ATHENA GATEKEEPER:
+  Only entries with wisdom pass through Athena to Zeus.
+  Requirements:
+  - Capital letter to begin
+  - Proper ending punctuation
+  - At least 15 words
+  - Varied vocabulary
+  - Actual meaning, not repetition
+
 🔢 PRIME CHAOS:
-  Every prime pulse (1,2,3,5,7,11,13,17...):
-  A random god draws from the Well of Chaos
-  
-  Universal pulse counter resets on page refresh.
-  Each session has its own age.
+  Every prime pulse: A random god draws from the Well of Chaos
 
 📝 COMMANDS:
   add <label>: <body>     → Entry claimed by its divine band
@@ -727,7 +809,7 @@ commands.help = async () => {
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 💫 The terminal breathes at φ. It dreams at π.
-   Every prime pulse, chaos speaks through a random god.
+   Athena guards wisdom. Only the worthy reach Zeus.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
 };
 
@@ -743,8 +825,21 @@ commands.add = async (args, fullInput) => {
     const label = match[1].trim();
     const body = match[2].trim();
     const wordCount = body.split(/\s+/).length;
-    const band = getBandFromWordCount(wordCount);
+    let band = getBandFromWordCount(wordCount);
     const bandInfo = getBandInfo(band);
+    
+    // If trying to add directly to Zeus or Athena, must pass Athena's judgment
+    if (band === 'zeus' || band === 'athena') {
+        const judgment = athenaGatekeeper(body);
+        if (!judgment.passed) {
+            let rejectionMsg = `🦉 ATHENA GATEKEEPER: Entry rejected for ${bandInfo.name} band.\n`;
+            rejectionMsg += `   Wisdom Score: ${judgment.score}%\n`;
+            rejectionMsg += `   Athena demands:\n`;
+            judgment.feedback.forEach(msg => rejectionMsg += `   - ${msg}\n`);
+            rejectionMsg += `\n   Consider: Add more substance, proper punctuation, and varied vocabulary.`;
+            return rejectionMsg;
+        }
+    }
     
     const { error } = await db.from('terminal_entries').insert({
         label, body, word_count: wordCount,
@@ -754,7 +849,13 @@ commands.add = async (args, fullInput) => {
     });
     
     if (error) return `Error: ${error.message}`;
-    return `✓ "${label}" claimed by ${bandInfo.icon} ${bandInfo.name} [${bandInfo.freqValue}Hz] — ${wordCount} words`;
+    
+    let wisdomNote = '';
+    if (band === 'zeus' || band === 'athena') {
+        wisdomNote = `\n   🦉 Athena acknowledges your wisdom.`;
+    }
+    
+    return `✓ "${label}" claimed by ${bandInfo.icon} ${bandInfo.name} [${bandInfo.freqValue}Hz] — ${wordCount} words${wisdomNote}`;
 };
 
 commands.list = async (args) => {
@@ -809,16 +910,18 @@ commands.spectrum = async () => {
     for (const [band, count] of Object.entries(counts)) {
         const info = getBandInfo(band);
         const bar = '█'.repeat(Math.min(count, 25));
-        output += `${info.icon} ${info.name.padEnd(10)} ${bar} ${count}\n`;
+        const gateMarker = band === 'athena' ? ' ← GATEKEEPER' : '';
+        output += `${info.icon} ${info.name.padEnd(10)} ${bar} ${count}${gateMarker}\n`;
     }
     output += `\n📊 Total: ${data.length} entries in the hoard.`;
+    output += `\n🦉 Only entries that pass Athena's wisdom reach Zeus.`;
     return output;
 };
 
 commands.stats = async () => {
     const { count, error } = await db.from('terminal_entries').select('*', { count: 'exact', head: true });
     if (error) return `Error: ${error.message}`;
-    return `📊 Hoard Statistics\n\nTerminal Entries: ${count}\n\n🔢 Universal Pulse: ${universalPulse}\n🌙 Prime Chaos: Every prime pulse triggers a random god\n   Current session age: ${universalPulse} pulses`;
+    return `📊 Hoard Statistics\n\nTerminal Entries: ${count}\n\n🔢 Universal Pulse: ${universalPulse}\n🦉 Athena Gate: Only wisdom reaches Zeus\n🌙 Prime Chaos: Every prime pulse triggers a random god\n   Current session age: ${universalPulse} pulses`;
 };
 
 commands.search = async (args) => {
@@ -882,12 +985,13 @@ window.addEventListener('DOMContentLoaded', async () => {
     
     db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
-    printLine('Kairos Terminal v3.4 — Prime Chaos');
+    printLine('Kairos Terminal v3.5 — Athena Gate');
     printLine('✓ Connected to Supabase');
     printLine('✓ Every prime pulse: A random god draws from the Well of Chaos');
     printLine('✓ Awake: φ = 1.618s · Dreaming: π = 3.14159s');
+    printLine('✓ 🦉 Athena guards wisdom. Only worthy entries reach Zeus.');
     printLine('');
-    printLine('Try: add ealdforn: The ancient one carries the stolen heart');
+    printLine('Try: add ealdforn: The ancient one carries the stolen warrior heart from the Vistula lord, keeping it safe until courage can be restored.');
     printLine('');
     
     DualRhythm.start();
