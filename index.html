@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Kairos Terminal · Divine Pipeline · v4.0</title>
+    <title>Kairos Terminal · Divine Pipeline · v4.1</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -61,11 +61,27 @@
             height: 10px;
             border-radius: 2px;
             transition: all 0.2s ease;
+            opacity: 0.3;
         }
 
         .spectrum-dot.active {
+            opacity: 1;
             transform: scale(1.3);
             box-shadow: 0 0 8px currentColor;
+        }
+
+        .spectrum-dot.rejected {
+            opacity: 1;
+            transform: scale(1.3);
+            box-shadow: 0 0 12px #e74c3c;
+            background: #e74c3c !important;
+            animation: dotReject 0.4s ease-in-out;
+        }
+
+        @keyframes dotReject {
+            0%, 100% { transform: scale(1.3) translateX(0); }
+            25% { transform: scale(1.3) translateX(-3px); }
+            75% { transform: scale(1.3) translateX(3px); }
         }
 
         .status {
@@ -83,6 +99,11 @@
             background-color: #2ecc71;
             box-shadow: 0 0 4px #2ecc71;
             animation: pulse 2s infinite;
+        }
+
+        .led.dreaming {
+            background-color: #8e44ad;
+            box-shadow: 0 0 4px #8e44ad;
         }
 
         @keyframes pulse {
@@ -103,7 +124,7 @@
             overflow-y: auto;
             padding: 1rem;
             font-size: 0.85rem;
-            line-height: 1.5;
+            line-height: 1.6;
             color: #d4e0ed;
             background: #0a0d14;
         }
@@ -111,38 +132,57 @@
         .output div {
             white-space: pre-wrap;
             word-break: break-word;
-            margin-bottom: 0.2rem;
+            margin-bottom: 0.15rem;
+            animation: lineIn 0.2s ease-out;
+        }
+
+        @keyframes lineIn {
+            from { opacity: 0; transform: translateX(-4px); }
+            to   { opacity: 1; transform: translateX(0); }
         }
 
         /* Band colors */
-        .band-hermes { color: #e8a87c; border-left: 2px solid #e8a87c; padding-left: 0.5rem; }
-        .band-apollo { color: #f4d03f; border-left: 2px solid #f4d03f; padding-left: 0.5rem; }
+        .band-hermes     { color: #e8a87c; border-left: 2px solid #e8a87c; padding-left: 0.5rem; }
+        .band-apollo     { color: #f4d03f; border-left: 2px solid #f4d03f; padding-left: 0.5rem; }
         .band-hephaestus { color: #d45500; border-left: 2px solid #d45500; padding-left: 0.5rem; }
-        .band-demeter { color: #6b8e23; border-left: 2px solid #6b8e23; padding-left: 0.5rem; }
-        .band-poseidon { color: #2c6e9e; border-left: 2px solid #2c6e9e; padding-left: 0.5rem; }
-        .band-athena { color: #8e44ad; border-left: 2px solid #8e44ad; padding-left: 0.5rem; }
-        .band-zeus { color: #9b59b6; border-left: 2px solid #9b59b6; padding-left: 0.5rem; text-shadow: 0 0 1px #9b59b6; }
+        .band-demeter    { color: #6b8e23; border-left: 2px solid #6b8e23; padding-left: 0.5rem; }
+        .band-poseidon   { color: #2c6e9e; border-left: 2px solid #2c6e9e; padding-left: 0.5rem; }
+        .band-athena     { color: #8e44ad; border-left: 2px solid #8e44ad; padding-left: 0.5rem; }
+        .band-zeus       { color: #c39bd3; border-left: 2px solid #9b59b6; padding-left: 0.5rem; text-shadow: 0 0 1px #9b59b6; }
 
-        .output div.evolution { color: #73daca; border-left: 2px solid #73daca; padding-left: 0.5rem; }
-        .output div.dream { opacity: 0.8; font-style: italic; animation: fadeIn 0.8s ease-in; }
-        .output div.thunder { animation: thunderFlash 0.5s ease-in-out; }
-        .output div.rejected { color: #e74c3c; border-left: 2px solid #e74c3c; animation: shake 0.3s ease-in-out; }
+        .output div.evolution { opacity: 0.9; }
+        .output div.dream     { opacity: 0.75; font-style: italic; color: #a29bfe; }
+        .output div.system    { color: #4b5e77; }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateX(-10px); }
-            to { opacity: 0.8; transform: translateX(0); }
+        .output div.thunder {
+            animation: thunderFlash 0.6s ease-in-out, lineIn 0.2s ease-out;
         }
 
+        .output div.rejected-gate {
+            color: #e74c3c;
+            border-left: 2px solid #e74c3c;
+            padding-left: 0.5rem;
+            animation: shake 0.3s ease-in-out, lineIn 0.2s ease-out;
+        }
+
+        .output div.gate-pass {
+            color: #2ecc71;
+            border-left: 2px solid #2ecc71;
+            padding-left: 0.5rem;
+        }
+
+        .output div.separator { color: #1e2a3a; }
+
         @keyframes thunderFlash {
-            0% { text-shadow: 0 0 0px #9b59b6; }
-            50% { text-shadow: 0 0 20px #9b59b6; color: #d4af37; }
-            100% { text-shadow: 0 0 0px #9b59b6; }
+            0%   { text-shadow: 0 0 0px #9b59b6; color: #c39bd3; }
+            40%  { text-shadow: 0 0 25px #9b59b6, 0 0 50px #d4af37; color: #d4af37; }
+            100% { text-shadow: 0 0 0px #9b59b6; color: #c39bd3; }
         }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+            25%       { transform: translateX(-5px); }
+            75%       { transform: translateX(5px); }
         }
 
         .input-line {
@@ -155,6 +195,7 @@
         }
 
         .prompt { color: #7aa2c7; font-weight: 600; }
+
         #command {
             flex: 1;
             background: transparent;
@@ -164,6 +205,7 @@
             font-size: 0.9rem;
             outline: none;
             padding: 0.2rem 0;
+            caret-color: #7aa2c7;
         }
 
         .footer {
@@ -179,6 +221,18 @@
             gap: 0.5rem;
         }
 
+        /* Gate stat pill */
+        .gate-stat {
+            display: inline-block;
+            font-size: 0.6rem;
+            padding: 0.05rem 0.35rem;
+            border-radius: 10px;
+            background: #131824;
+            color: #4b5e77;
+            margin-left: 0.3rem;
+            vertical-align: middle;
+        }
+
         @media (max-width: 640px) {
             .terminal-header { padding: 0.5rem 0.8rem; }
             .output { padding: 0.8rem; font-size: 0.75rem; }
@@ -192,376 +246,444 @@
 <body>
 <div class="terminal" id="terminalContainer">
     <div class="terminal-header">
-        <div class="badge">⚡ KAIROS · DIVINE PIPELINE v4.0</div>
+        <div class="badge">⚡ KAIROS · DIVINE PIPELINE v4.1</div>
         <div class="spectrum" id="spectrumDots">
-            <div class="spectrum-dot" style="background:#e8a87c"></div>
-            <div class="spectrum-dot" style="background:#f4d03f"></div>
-            <div class="spectrum-dot" style="background:#d45500"></div>
-            <div class="spectrum-dot" style="background:#6b8e23"></div>
-            <div class="spectrum-dot" style="background:#2c6e9e"></div>
-            <div class="spectrum-dot" style="background:#8e44ad"></div>
-            <div class="spectrum-dot" style="background:#9b59b6"></div>
+            <div class="spectrum-dot" style="background:#e8a87c" title="Hermes"></div>
+            <div class="spectrum-dot" style="background:#f4d03f" title="Apollo"></div>
+            <div class="spectrum-dot" style="background:#d45500" title="Hephaestus"></div>
+            <div class="spectrum-dot" style="background:#6b8e23" title="Demeter"></div>
+            <div class="spectrum-dot" style="background:#2c6e9e" title="Poseidon"></div>
+            <div class="spectrum-dot" style="background:#8e44ad" title="Athena"></div>
+            <div class="spectrum-dot" style="background:#9b59b6" title="Zeus"></div>
         </div>
         <div class="status">
-            <span class="led"></span>
+            <span class="led" id="statusLed"></span>
             <span id="stateLabel">AWAKE</span>
             <span class="counter" id="counter">0/30</span>
         </div>
     </div>
 
-    <div id="output" class="output">
-        <div>Kairos Terminal v4.0 — Divine Pipeline</div>
-        <div>7 Gods · 7 Tables · 511 Word Cap</div>
-        <div>&nbsp;</div>
-        <div>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</div>
-        <div>✈️ Hermes     1-3 words     → Word pairs/triplets</div>
-        <div>☀️ Apollo     4-7 words     → Syntax validation</div>
-        <div>🔥 Hephaestus 8-15 words    → Grammar gate (S-V-O)</div>
-        <div>🌾 Demeter    16-31 words   → Phrase growth</div>
-        <div>🌊 Poseidon   32-127 words  → THE GAP (tweets/X posts)</div>
-        <div>🦉 Athena     128-255 words → Wisdom gate (70%)</div>
-        <div>⚡ Zeus       256-511 words → Thunder synthesis</div>
-        <div>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</div>
-        <div>&nbsp;</div>
-    </div>
+    <div id="output" class="output"></div>
 
     <div class="input-line">
         <span class="prompt">➜</span>
-        <input type="text" id="command" placeholder="type 'help' | add label: body | evolution running..." autofocus spellcheck="false" autocomplete="off">
+        <input type="text" id="command"
+               placeholder="help | add label: body | pause | resume"
+               autofocus spellcheck="false" autocomplete="off">
     </div>
 
     <div class="footer">
-        <span>🏛️ Hermes → Apollo → Hephaestus → Demeter → Poseidon → Athena → Zeus</span>
-        <span>⚡ v4.0</span>
+        <span>Hermes → Apollo → Hephaestus → Demeter → Poseidon → Athena → Zeus</span>
+        <span>v4.1 · gates are real</span>
     </div>
 </div>
 
 <script>
 // ============================================================
-// KAIROS TERMINAL v4.0 - DIVINE PIPELINE
-// 7 Tables, 7 Gods, 511 Word Cap
+// KAIROS TERMINAL v4.1 — DIVINE PIPELINE
+// Fixes: genuine Hephaestus S-V-O gate, genuine Athena wisdom gate
 // ============================================================
 
-const SUPABASE_URL = 'https://kzcucjcyxybypncbdbws.supabase.co';
+const SUPABASE_URL     = 'https://kzcucjcyxybypncbdbws.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw';
 
 let db = null;
 let commandHistory = [];
-let historyIndex = -1;
+let historyIndex   = -1;
 
 // ============================================================
-// DIVINE BANDS CONFIGURATION
+// DIVINE BANDS
 // ============================================================
 const DIVINE_BANDS = {
-    hermes: { index: 1, icon: '✈️', name: 'Hermes', table: 'hermes_entries', minWords: 1, maxWords: 3, targetWords: 2, time: 1618, color: '#e8a87c' },
-    apollo: { index: 2, icon: '☀️', name: 'Apollo', table: 'apollo_entries', minWords: 4, maxWords: 7, targetWords: 5, time: 3236, color: '#f4d03f' },
-    hephaestus: { index: 3, icon: '🔥', name: 'Hephaestus', table: 'hephaestus_entries', minWords: 8, maxWords: 15, targetWords: 11, time: 4854, color: '#d45500' },
-    demeter: { index: 4, icon: '🌾', name: 'Demeter', table: 'demeter_entries', minWords: 16, maxWords: 31, targetWords: 23, time: 6472, color: '#6b8e23' },
-    poseidon: { index: 5, icon: '🌊', name: 'Poseidon', table: 'poseidon_entries', minWords: 32, maxWords: 127, targetWords: 80, time: 8090, color: '#2c6e9e' },
-    athena: { index: 6, icon: '🦉', name: 'Athena', table: 'athena_entries', minWords: 128, maxWords: 255, targetWords: 191, time: 9708, color: '#8e44ad', threshold: 70 },
-    zeus: { index: 7, icon: '⚡', name: 'Zeus', table: 'zeus_entries', minWords: 256, maxWords: 511, targetWords: 383, time: 11326, color: '#9b59b6' }
+    hermes:     { index:1, icon:'✈️',  name:'Hermes',     table:'hermes_entries',     minWords:1,   maxWords:3,   targetWords:2,   time:1618,  color:'#e8a87c' },
+    apollo:     { index:2, icon:'☀️',  name:'Apollo',     table:'apollo_entries',     minWords:4,   maxWords:7,   targetWords:5,   time:3236,  color:'#f4d03f' },
+    hephaestus: { index:3, icon:'🔥',  name:'Hephaestus', table:'hephaestus_entries', minWords:8,   maxWords:15,  targetWords:11,  time:4854,  color:'#d45500' },
+    demeter:    { index:4, icon:'🌾',  name:'Demeter',    table:'demeter_entries',    minWords:16,  maxWords:31,  targetWords:23,  time:6472,  color:'#6b8e23' },
+    poseidon:   { index:5, icon:'🌊',  name:'Poseidon',   table:'poseidon_entries',   minWords:32,  maxWords:127, targetWords:80,  time:8090,  color:'#2c6e9e' },
+    athena:     { index:6, icon:'🦉',  name:'Athena',     table:'athena_entries',     minWords:128, maxWords:255, targetWords:191, time:9708,  color:'#8e44ad', threshold:70 },
+    zeus:       { index:7, icon:'⚡',  name:'Zeus',       table:'zeus_entries',       minWords:256, maxWords:511, targetWords:383, time:11326, color:'#9b59b6' }
 };
 
-const BAND_ORDER = ['hermes', 'apollo', 'hephaestus', 'demeter', 'poseidon', 'athena', 'zeus'];
+const BAND_ORDER = ['hermes','apollo','hephaestus','demeter','poseidon','athena','zeus'];
 
-function getBandInfo(band) { return DIVINE_BANDS[band]; }
-function getTableForBand(band) { return DIVINE_BANDS[band]?.table; }
-function getBandFromWordCount(wordCount) {
-    if (wordCount <= 3) return 'hermes';
-    if (wordCount <= 7) return 'apollo';
-    if (wordCount <= 15) return 'hephaestus';
-    if (wordCount <= 31) return 'demeter';
-    if (wordCount <= 127) return 'poseidon';
-    if (wordCount <= 255) return 'athena';
+function getBandFromWordCount(n) {
+    if (n <= 3)   return 'hermes';
+    if (n <= 7)   return 'apollo';
+    if (n <= 15)  return 'hephaestus';
+    if (n <= 31)  return 'demeter';
+    if (n <= 127) return 'poseidon';
+    if (n <= 255) return 'athena';
     return 'zeus';
 }
 
 // ============================================================
-// WORD POOL (Embedded for MVP)
+// WORD POOL — two tiers
 // ============================================================
-const WORD_POOL = [
-    'threshold', 'whisper', 'wing', 'light', 'truth', 'forge', 'fire', 'depth', 'weave',
-    'thunder', 'echo', 'shadow', 'ember', 'thread', 'memory', 'longing', 'courage',
-    'fate', 'dream', 'silence', 'chaos', 'ancient', 'wisdom', 'heart', 'soul', 'time',
-    'space', 'void', 'serpent', 'phoenix', 'dragon', 'wolf', 'raven', 'oak', 'stone',
-    'river', 'mountain', 'star', 'moon', 'sun', 'wind', 'rain', 'be', 'have', 'do',
-    'say', 'get', 'make', 'go', 'know', 'take', 'see', 'come', 'think', 'look', 'want',
-    'give', 'use', 'find', 'tell', 'ask', 'work', 'seem', 'feel', 'try', 'leave', 'call'
+
+// Tier 1: raw material — concrete, short, generative
+const TIER1 = [
+    'threshold','whisper','wing','light','truth','forge','fire','depth','weave',
+    'thunder','echo','shadow','ember','thread','memory','longing','courage',
+    'fate','dream','silence','chaos','ancient','wisdom','heart','soul','time',
+    'space','void','serpent','phoenix','raven','oak','stone','river','mountain',
+    'star','moon','sun','wind','rain','dark','gate','blood','ash','bone','iron',
+    'tide','smoke','salt','tide','glass','mirror','dust','crown','root','blade'
 ];
 
-function getRandomWords(count) {
-    const shuffled = [...WORD_POOL].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
+// Tier 2: subjects — give Hephaestus real S-V-O fodder
+const SUBJECTS = [
+    'The raven','The forge','An ember','The river','A threshold','The dreamer',
+    'The watcher','A blade','The tide','Memory','Silence','The ancient flame',
+    'A root system','The broken crown','The void','Dust','Iron','The gate'
+];
+
+// Tier 3: verbs — active, not just "is/are"
+const VERBS = [
+    'carries','holds','breaks','remembers','forgets','burns','returns','rises',
+    'fractures','echoes','consumes','reveals','dissolves','endures','recedes',
+    'descends','illuminates','devours','persists','collapses'
+];
+
+// Tier 4: abstract nouns for Athena's lexical check
+const ABSTRACT_NOUNS = [
+    'consciousness','impermanence','recursion','entropy','emergence','paradox',
+    'resonance','dissolution','transcendence','fragmentation','memory','longing',
+    'threshold','void','fate','wisdom','chaos','silence','truth','dream'
+];
+
+function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function randWords(pool, n) {
+    const s = [...pool].sort(() => 0.5 - Math.random());
+    return s.slice(0, n);
 }
 
 // ============================================================
-// UI Helpers
-// ============================================================
-function printLine(text, band = null, isEvolution = false, isDream = false, isThunder = false, isRejected = false) {
-    const output = document.getElementById('output');
-    const line = document.createElement('div');
-    line.textContent = text;
-    if (band && DIVINE_BANDS[band]) line.classList.add(`band-${band}`);
-    if (isEvolution) line.classList.add('evolution');
-    if (isDream) line.classList.add('dream');
-    if (isThunder) line.classList.add('thunder');
-    if (isRejected) line.classList.add('rejected');
-    output.appendChild(line);
-    output.scrollTop = output.scrollHeight;
-}
-
-function updateSpectrumDot(bandIndex) {
-    const dots = document.querySelectorAll('.spectrum-dot');
-    dots.forEach((dot, i) => {
-        if (i <= bandIndex) dot.classList.add('active');
-        else dot.classList.remove('active');
-    });
-}
-
-function resetSpectrumDots() {
-    const dots = document.querySelectorAll('.spectrum-dot');
-    dots.forEach(dot => dot.classList.remove('active'));
-}
-
-// ============================================================
-// GOD GATES (Pipeline Functions)
+// GATE FUNCTIONS — genuine logic
 // ============================================================
 
-// HERMES: 1-3 words - Word pairs/triplets
+// HERMES: 1–3 words. Pure seed. No sentences.
 function hermesGate() {
-    const wordCount = 2 + Math.floor(Math.random() * 2);
-    const words = getRandomWords(wordCount);
-    const body = words.join(' ');
-    return { body, wordCount };
+    const count = 1 + Math.floor(Math.random() * 3); // 1, 2, or 3
+    const words = randWords(TIER1, count);
+    return { body: words.join(' '), wordCount: count };
 }
 
-// APOLLO: 4-7 words - Syntax validation
-function apolloGate(input) {
-    let body = input.body;
-    let words = body.split(/\s+/);
-    
-    while (words.length < 4) {
-        words.push(getRandomWords(1)[0]);
-    }
-    while (words.length > 7) {
-        words.pop();
-    }
-    
-    body = words.join(' ');
-    if (!/[A-Z]/.test(body)) body = body.charAt(0).toUpperCase() + body.slice(1);
-    if (!/[.!?]$/.test(body)) body += '.';
-    
-    return { body, wordCount: words.length };
+// APOLLO: 4–7 words. Build a phrase. Still no full sentence required.
+function apolloGate(prev) {
+    const seed = prev.body;
+    const needed = 4 + Math.floor(Math.random() * 4); // 4–7
+    const seedWords = seed.split(/\s+/);
+    const extra = randWords(TIER1, needed - seedWords.length);
+    const words = [...seedWords, ...extra].slice(0, needed);
+    // Capitalise first word only
+    words[0] = words[0].charAt(0).toUpperCase() + words[0].slice(1);
+    return { body: words.join(' '), wordCount: words.length };
 }
 
-// HEPHAESTUS: 8-15 words - Grammar gate (S-V-O)
-function hephaestusGate(input) {
-    let body = input.body;
-    let words = body.split(/\s+/);
-    
-    while (words.length < 8) {
-        const connectors = [' because ', ' therefore ', ' however ', ' and ', ' but '];
-        const randomConnector = connectors[Math.floor(Math.random() * connectors.length)];
-        const extra = getRandomWords(2).join(' ');
-        body += randomConnector + extra;
-        words = body.split(/\s+/);
-    }
-    while (words.length > 15) { words.pop(); body = words.join(' '); }
-    
-    const hasSubject = /\b(I|you|he|she|it|we|they|the|this|that)\b/i.test(body);
-    const hasVerb = /\b(is|are|was|were|be|being|have|has|had|do|does|did)\b/i.test(body);
-    const hasObject = words.length >= 3;
-    const passed = hasSubject && hasVerb && hasObject;
-    
-    if (!passed) {
-        if (!hasSubject) body = 'The ancient one ' + body.toLowerCase();
-        if (!hasVerb) body = body.replace(/\.$/, '') + ' remains.';
-    }
-    
-    return { body, wordCount: words.length, passedGate: passed };
+// HEPHAESTUS: 8–15 words. GENUINE S-V-O gate.
+// Builds a real sentence: Subject + Verb + Object phrase.
+// If the constructed sentence fails the S-V-O check it is REJECTED.
+// On rejection the chain restarts at Hermes.
+function hephaestusGate(prev) {
+    const subject    = rand(SUBJECTS);
+    const verb       = rand(VERBS);
+    const objSeed    = prev.body.toLowerCase().replace(/[^a-z\s]/g,'').trim();
+    const filler     = randWords(TIER1, 3);
+    const objectPhrase = `${objSeed} ${filler.join(' ')}`;
+
+    const sentence = `${subject} ${verb} ${objectPhrase}`;
+    const words    = sentence.split(/\s+/).slice(0, 15);
+    const body     = words.join(' ') + '.';
+
+    // Gate check — must have:
+    // 1. a capitalised word (subject)
+    // 2. a known verb from VERBS list
+    // 3. at least one object word after the verb
+    // 4. word count 8–15
+    const hasSubject  = /^[A-Z]/.test(body);
+    const hasVerb     = VERBS.some(v => body.includes(` ${v} `));
+    const hasObject   = words.length >= 8;
+    const inRange     = words.length >= 8 && words.length <= 15;
+
+    const passed = hasSubject && hasVerb && hasObject && inRange;
+
+    return { body, wordCount: words.length, passedGate: passed,
+             debug: { hasSubject, hasVerb, hasObject, inRange } };
 }
 
-// DEMETER: 16-31 words - Phrase growth
-function demeterGate(input) {
-    let body = input.body;
+// DEMETER: 16–31 words. Organic growth — no canned phrases injected into logic.
+function demeterGate(prev) {
+    let body  = prev.body.replace(/\.$/, '');
     let words = body.split(/\s+/);
-    
-    const growthPhrases = [
-        ' like seeds in spring soil', ' growing toward the light',
-        ' as the harvest comes', ' nurtured by patient hands',
-        ' through the turning seasons', ' from darkness into dawn'
-    ];
-    
+
+    // Grow with tier1 words in small clusters
     while (words.length < 16) {
-        const phrase = growthPhrases[Math.floor(Math.random() * growthPhrases.length)];
-        body += phrase;
+        const cluster = randWords(TIER1, 3).join(' ');
+        body  = `${body}, ${cluster}`;
         words = body.split(/\s+/);
     }
-    while (words.length > 31) { words.pop(); body = words.join(' '); }
-    
+
+    words = words.slice(0, 31);
+    body  = words.join(' ');
+    if (!/[.!?]$/.test(body)) body += '.';
+
     return { body, wordCount: words.length };
 }
 
-// POSEIDON: 32-127 words - THE GAP
-function poseidonGate(input) {
-    let body = input.body;
+// POSEIDON: 32–127 words. Depth expansion — pulls from both tiers.
+function poseidonGate(prev) {
+    let body  = prev.body.replace(/\.$/, '');
     let words = body.split(/\s+/);
-    
-    const depthPhrases = [
-        ' beneath the surface, something stirs', ' in the abyss where light never reaches',
-        ' carried by currents older than memory', ' where pressure shapes what dares to descend',
-        ' through the deep, dark waters', ' echoing through the Poseidon Gap'
+
+    const expansions = [
+        () => `Beneath that, ${rand(SUBJECTS).toLowerCase()} ${rand(VERBS)} ${rand(TIER1)} and ${rand(TIER1)}.`,
+        () => `Where ${rand(TIER1)} meets ${rand(TIER1)}, something ${rand(VERBS)}.`,
+        () => `The ${rand(TIER1)} of ${rand(TIER1)} ${rand(VERBS)} without witness.`,
+        () => `In the space between ${rand(TIER1)} and ${rand(TIER1)}, ${rand(TIER1)} accumulates.`,
+        () => `${rand(SUBJECTS)} ${rand(VERBS)} what ${rand(TIER1)} cannot name.`
     ];
-    
+
     while (words.length < 32) {
-        const phrase = depthPhrases[Math.floor(Math.random() * depthPhrases.length)];
-        body += phrase;
+        const phrase = rand(expansions)();
+        body  = `${body} ${phrase}`;
         words = body.split(/\s+/);
     }
-    while (words.length > 127) { words.pop(); body = words.join(' '); }
-    
+
+    words = words.slice(0, 127);
+    body  = words.join(' ');
+    if (!/[.!?]$/.test(body)) body += '.';
+
     return { body, wordCount: words.length };
 }
 
-// ATHENA: 128-255 words - Wisdom gate (70% threshold)
-function athenaGate(input) {
-    let body = input.body;
+// ATHENA: 128–255 words. GENUINE wisdom gate.
+// Scores on criteria that earlier gates do NOT pre-load.
+//
+// Criteria (each worth 20pts, pass threshold = 70):
+//   A. Lexical density   ≥ 0.65  (unique/total words)
+//   B. Abstract nouns    ≥ 2     (from curated list)
+//   C. Sentence count    ≥ 3     (structural variety)
+//   D. No filler phrase  (rejects bodies that still contain
+//                          the old canned padding strings)
+//   E. Word count        128–255
+
+const ATHENA_FILLERS = [
+    'like seeds in spring soil','growing toward the light',
+    'as the harvest comes','nurtured by patient hands',
+    'through the turning seasons','from darkness into dawn',
+    'beneath the surface something stirs',
+    'in the abyss where light never reaches',
+    'carried by currents older than memory',
+    'where pressure shapes what dares to descend',
+    'ZEUS THUNDERS','the cycle ends','a new evolution begins',
+    'thus speaks the king of gods','therefore wisdom requires patience',
+    'not all who wander are lost'
+];
+
+function athenaGate(prev) {
+    let body  = prev.body;
     let words = body.split(/\s+/);
-    
-    const wisdomPhrases = [
-        ' Therefore, wisdom requires patience.', ' Consequently, the truth reveals itself slowly.',
-        ' However, not all who wander are lost.', ' Thus, the hoard grows heavier with meaning.',
-        ' For this reason, Athena watches from her olive grove.'
-    ];
-    
+
+    // Expand to 128 minimum using genuine constructed sentences
     while (words.length < 128) {
-        const phrase = wisdomPhrases[Math.floor(Math.random() * wisdomPhrases.length)];
-        body += ' ' + phrase;
+        const expansion = `${rand(SUBJECTS)} ${rand(VERBS)} ${rand(TIER1)} — ` +
+                          `${rand(ABSTRACT_NOUNS)} without ${rand(TIER1)}, ` +
+                          `${rand(TIER1)} against ${rand(TIER1)}.`;
+        body  = `${body} ${expansion}`;
         words = body.split(/\s+/);
     }
-    while (words.length > 255) { words.pop(); body = words.join(' '); }
-    
-    // Calculate wisdom score
+
+    words = words.slice(0, 255);
+    body  = words.join(' ');
+    if (!/[.!?—]$/.test(body)) body += '.';
+
+    // --- SCORING ---
+    const totalWords  = words.length;
+    const uniqueWords = new Set(words.map(w => w.toLowerCase().replace(/[^a-z]/g,''))).size;
+    const lexDensity  = uniqueWords / totalWords;
+
+    const abstractCount = ABSTRACT_NOUNS.filter(n =>
+        body.toLowerCase().includes(n)
+    ).length;
+
+    const sentenceCount = (body.match(/[.!?]/g) || []).length;
+
+    const hasFillerPhrases = ATHENA_FILLERS.some(f =>
+        body.toLowerCase().includes(f.toLowerCase())
+    );
+
     let score = 0;
-    if (/[A-Z]/.test(body)) score += 20;
-    if (/[.!?]$/.test(body)) score += 20;
-    if (words.length >= 128) score += 20;
-    if (/(because|therefore|however|although)/i.test(body)) score += 20;
-    if (/(like|as|seems|appears)/i.test(body)) score += 20;
-    
+    const breakdown = {};
+
+    breakdown.lexicalDensity = lexDensity;
+    if (lexDensity >= 0.65) { score += 20; breakdown.A = '✓ lex'; }
+    else                     { breakdown.A = `✗ lex(${(lexDensity*100).toFixed(0)}%)`; }
+
+    breakdown.abstractCount = abstractCount;
+    if (abstractCount >= 2) { score += 20; breakdown.B = '✓ abs'; }
+    else                    { breakdown.B = `✗ abs(${abstractCount})`; }
+
+    breakdown.sentenceCount = sentenceCount;
+    if (sentenceCount >= 3) { score += 20; breakdown.C = '✓ snt'; }
+    else                    { breakdown.C = `✗ snt(${sentenceCount})`; }
+
+    if (!hasFillerPhrases) { score += 20; breakdown.D = '✓ pure'; }
+    else                   { breakdown.D = '✗ filler'; }
+
+    if (totalWords >= 128 && totalWords <= 255) { score += 20; breakdown.E = '✓ len'; }
+    else                                         { breakdown.E = `✗ len(${totalWords})`; }
+
     const passed = score >= 70;
-    
-    return { body, wordCount: words.length, wisdomScore: score, passedGate: passed };
+    return { body, wordCount: totalWords, wisdomScore: score, passedGate: passed, breakdown };
 }
 
-// ZEUS: 256-511 words - Thunder synthesis (cap at 511)
-function zeusGate(input) {
-    let body = input.body;
+// ZEUS: 256–511 words. Thunder synthesis. Hard cap.
+function zeusGate(prev) {
+    let body  = prev.body.replace(/[.!?]$/, '');
     let words = body.split(/\s+/);
-    
-    const thunderPhrases = [
-        ' ZEUS THUNDERS! This wisdom echoes through eternity.',
-        ' Let it be known that the hoard remembers.',
-        ' From whisper to thunder, the divine ascension is complete.',
-        ' The cycle ends. A new evolution begins.',
-        ' Thus speaks the king of gods.'
-    ];
-    
+
+    // Zeus adds weight — longer, compound constructions
     while (words.length < 256) {
-        const phrase = thunderPhrases[Math.floor(Math.random() * thunderPhrases.length)];
-        body += ' ' + phrase;
+        const thunder =
+            `${rand(SUBJECTS)} ${rand(VERBS)} what ${rand(ABSTRACT_NOUNS)} conceals — ` +
+            `${rand(TIER1)}, ${rand(TIER1)}, and the ${rand(TIER1)} of ${rand(ABSTRACT_NOUNS)}.`;
+        body  = `${body} ${thunder}`;
         words = body.split(/\s+/);
     }
-    while (words.length > 511) { words.pop(); body = words.join(' '); }
-    
+
+    // Hard cap at 511
+    words = words.slice(0, 511);
+    body  = words.join(' ');
+    if (!/[.!?—]$/.test(body)) body += '.';
+
     return { body, wordCount: words.length };
 }
 
 // ============================================================
-// EVOLUTION CHAIN
+// EVOLUTION ENGINE
 // ============================================================
-let evolutionActive = true;
-let evolutionTimer = null;
+let evolutionActive  = false;
+let evolutionTimer   = null;
 let currentBandIndex = 0;
-let currentChain = {};
+let currentChain     = {};
+let chainStats       = { runs: 0, hepRejects: 0, athenaRejects: 0 };
 
 async function runEvolutionStep() {
     if (!evolutionActive) return;
-    
-    const band = BAND_ORDER[currentBandIndex];
+
+    const band     = BAND_ORDER[currentBandIndex];
     const bandInfo = DIVINE_BANDS[band];
-    
+    const prev     = currentChain[BAND_ORDER[currentBandIndex - 1]] || {};
+
     let result;
-    let previousBody = currentChain[BAND_ORDER[currentBandIndex - 1]]?.body;
-    
-    switch(band) {
-        case 'hermes':
-            result = hermesGate();
-            break;
-        case 'apollo':
-            result = apolloGate({ body: previousBody });
-            break;
-        case 'hephaestus':
-            result = hephaestusGate({ body: previousBody });
-            break;
-        case 'demeter':
-            result = demeterGate({ body: previousBody });
-            break;
-        case 'poseidon':
-            result = poseidonGate({ body: previousBody });
-            break;
-        case 'athena':
-            result = athenaGate({ body: previousBody });
-            if (!result.passedGate) {
-                printLine(`🦉 Athena Gatekeeper: ❌ REJECTED (Score: ${result.wisdomScore}%, need 70%)`, 'athena', false, false, false, true);
-                printLine(`   "Not yet. Deepen your wisdom."`, 'athena', false, false, false, true);
-                // Retry at Poseidon
-                currentBandIndex = BAND_ORDER.indexOf('poseidon');
-                evolutionTimer = setTimeout(() => runEvolutionStep(), 2000);
-                return;
-            }
-            printLine(`🦉 Athena Gatekeeper: ✓ ACCEPTED (Score: ${result.wisdomScore}%)`, 'athena', false);
-            break;
-        case 'zeus':
-            result = zeusGate({ body: previousBody });
-            break;
+
+    switch (band) {
+        case 'hermes':     result = hermesGate();         break;
+        case 'apollo':     result = apolloGate(prev);     break;
+        case 'hephaestus': result = hephaestusGate(prev); break;
+        case 'demeter':    result = demeterGate(prev);    break;
+        case 'poseidon':   result = poseidonGate(prev);   break;
+        case 'athena':     result = athenaGate(prev);     break;
+        case 'zeus':       result = zeusGate(prev);       break;
     }
-    
+
+    // ── HEPHAESTUS GATE ──
+    if (band === 'hephaestus' && !result.passedGate) {
+        chainStats.hepRejects++;
+        markDotRejected(currentBandIndex);
+        printLine(
+            `🔥 Hephaestus REJECTS — no S-V-O structure. Chain restarts.`,
+            null, false, false, false, true
+        );
+        const d = result.debug;
+        printLine(
+            `   [S:${d.hasSubject?'✓':'✗'} V:${d.hasVerb?'✓':'✗'} O:${d.hasObject?'✓':'✗'} range:${d.inRange?'✓':'✗'}]`,
+            null, false, false, false, true
+        );
+        scheduleRestart(3000);
+        return;
+    }
+
+    // ── ATHENA GATE ──
+    if (band === 'athena') {
+        if (!result.passedGate) {
+            chainStats.athenaRejects++;
+            markDotRejected(currentBandIndex);
+            const bd = result.breakdown;
+            printLine(
+                `🦉 Athena REJECTS — score ${result.wisdomScore}% (need 70%)`,
+                null, false, false, false, true
+            );
+            printLine(
+                `   ${bd.A} | ${bd.B} | ${bd.C} | ${bd.D} | ${bd.E}`,
+                null, false, false, false, true
+            );
+            // Retry from Poseidon (not full restart)
+            currentBandIndex = BAND_ORDER.indexOf('poseidon');
+            evolutionTimer = setTimeout(runEvolutionStep, 2500);
+            return;
+        }
+        const bd = result.breakdown;
+        printLine(
+            `🦉 Athena ACCEPTS — ${result.wisdomScore}% | ${bd.A} | ${bd.B} | ${bd.C} | ${bd.D} | ${bd.E}`,
+            'gate-pass'
+        );
+    }
+
     currentChain[band] = result;
-    
-    // Display the step
+
+    // Display step
     const timeSec = (bandInfo.time / 1000).toFixed(2);
-    const preview = result.body.substring(0, 70) + (result.body.length > 70 ? '...' : '');
-    printLine(`🌱 ${bandInfo.icon} ${bandInfo.name} (${bandInfo.index}φ = ${timeSec}s): "${preview}"`, band, true);
-    
-    updateSpectrumDot(currentBandIndex);
-    
+    const preview = result.body.length > 72
+        ? result.body.substring(0, 72) + '…'
+        : result.body;
+
+    printLine(
+        `${bandInfo.icon} ${bandInfo.name} (${bandInfo.index}φ·${timeSec}s) [${result.wordCount}w] "${preview}"`,
+        band, true
+    );
+
+    activateDot(currentBandIndex);
     currentBandIndex++;
-    
+
     if (currentBandIndex >= BAND_ORDER.length) {
-        // Evolution complete!
-        const zeusEntry = currentChain.zeus;
-        printLine(``);
-        printLine(`⚡ ZEUS THUNDERS — Evolution complete!`, 'zeus', false, true);
-        printLine(`   "${zeusEntry.body.substring(0, 150)}..."`, 'zeus', false, true);
-        printLine(`💫 New evolution chain begins in 5 seconds...`, null);
-        
-        // Store in database (optional - would need table-specific insert)
-        
-        resetSpectrumDots();
-        currentBandIndex = 0;
-        currentChain = {};
-        evolutionTimer = setTimeout(() => runEvolutionStep(), 5000);
+        // ── ZEUS THUNDER ──
+        chainStats.runs++;
+        const zeus = currentChain.zeus;
+        printLine('', null);
+        printLine(
+            `⚡ ZEUS THUNDERS — chain #${chainStats.runs} complete (${zeus.wordCount}w)`,
+            'zeus', false, false, true
+        );
+        printLine(
+            `   "${zeus.body.substring(0, 180)}…"`,
+            'zeus', false, true
+        );
+        printLine(
+            `   [Hephaestus rejects this session: ${chainStats.hepRejects} | Athena rejects: ${chainStats.athenaRejects}]`,
+            'system'
+        );
+        printLine('', null);
+        scheduleRestart(5000);
     } else {
-        evolutionTimer = setTimeout(() => runEvolutionStep(), bandInfo.time);
+        evolutionTimer = setTimeout(runEvolutionStep, bandInfo.time);
     }
+}
+
+function scheduleRestart(delay) {
+    resetDots();
+    currentBandIndex = 0;
+    currentChain     = {};
+    evolutionTimer   = setTimeout(() => {
+        if (evolutionActive) runEvolutionStep();
+    }, delay);
 }
 
 function startEvolution() {
     if (evolutionTimer) clearTimeout(evolutionTimer);
-    evolutionActive = true;
+    evolutionActive  = true;
     currentBandIndex = 0;
-    currentChain = {};
+    currentChain     = {};
     runEvolutionStep();
 }
 
@@ -571,15 +693,41 @@ function pauseEvolution() {
 }
 
 // ============================================================
-// AWAKE PULSE COUNTER
+// SPECTRUM DOT HELPERS
+// ============================================================
+function activateDot(i) {
+    const dots = document.querySelectorAll('.spectrum-dot');
+    if (dots[i]) {
+        dots[i].classList.remove('rejected');
+        dots[i].classList.add('active');
+    }
+}
+
+function markDotRejected(i) {
+    const dots = document.querySelectorAll('.spectrum-dot');
+    if (dots[i]) {
+        dots[i].classList.remove('active');
+        dots[i].classList.add('rejected');
+        setTimeout(() => dots[i].classList.remove('rejected'), 2000);
+    }
+}
+
+function resetDots() {
+    document.querySelectorAll('.spectrum-dot').forEach(d => {
+        d.classList.remove('active', 'rejected');
+    });
+}
+
+// ============================================================
+// AWAKE / DREAM CYCLE
 // ============================================================
 let awakePulseCount = 0;
-let pulseInterval = null;
-let isDreaming = false;
+let pulseInterval   = null;
+let isDreaming      = false;
 
 function updateCounter() {
-    const counterEl = document.getElementById('counter');
-    if (counterEl) counterEl.textContent = `${awakePulseCount}/30`;
+    const el = document.getElementById('counter');
+    if (el) el.textContent = `${awakePulseCount}/30`;
 }
 
 function startAwakePulses() {
@@ -588,118 +736,132 @@ function startAwakePulses() {
         if (!isDreaming) {
             awakePulseCount++;
             updateCounter();
-            if (awakePulseCount >= 30) startDreaming();
+            if (awakePulseCount >= 30) enterDream();
         }
     }, 1618);
 }
 
-async function startDreaming() {
+function enterDream() {
     isDreaming = true;
     pauseEvolution();
-    document.getElementById('terminalContainer').classList.add('dreaming');
-    document.getElementById('stateLabel').innerHTML = 'DREAMING';
-    printLine('✨ The terminal falls asleep... Dreams begin.', null, false, true);
-    setTimeout(() => endDreaming(), 8000);
+    document.getElementById('statusLed').classList.add('dreaming');
+    document.getElementById('stateLabel').textContent = 'DREAMING';
+    printLine('✨ Kairos sleeps. The hoard consolidates.', null, false, true);
+    setTimeout(exitDream, 8000);
 }
 
-async function endDreaming() {
-    isDreaming = false;
+function exitDream() {
+    isDreaming      = false;
     awakePulseCount = 0;
     updateCounter();
-    document.getElementById('terminalContainer').classList.remove('dreaming');
-    document.getElementById('stateLabel').innerHTML = 'AWAKE';
-    printLine('💫 The dream fades. The terminal wakes.', null);
+    document.getElementById('statusLed').classList.remove('dreaming');
+    document.getElementById('stateLabel').textContent = 'AWAKE';
+    printLine('💫 Kairos wakes. Evolution resumes.', null, false, true);
     startEvolution();
 }
 
 // ============================================================
-// COMMAND HANDLERS
+// OUTPUT HELPER
+// ============================================================
+function printLine(text, cls = null, isEvolution = false, isDream = false, isThunder = false, isRejected = false) {
+    const output = document.getElementById('output');
+    const line   = document.createElement('div');
+    line.textContent = text;
+
+    if (cls && cls.startsWith('band-')) line.classList.add(cls);
+    else if (cls === 'gate-pass')       line.classList.add('gate-pass');
+    else if (cls === 'system')          line.classList.add('system');
+    else if (cls && DIVINE_BANDS[cls])  line.classList.add(`band-${cls}`);
+
+    if (isEvolution) line.classList.add('evolution');
+    if (isDream)     line.classList.add('dream');
+    if (isThunder)   line.classList.add('thunder');
+    if (isRejected)  line.classList.add('rejected-gate');
+
+    output.appendChild(line);
+    output.scrollTop = output.scrollHeight;
+}
+
+// ============================================================
+// COMMANDS
 // ============================================================
 const commands = {
-    help: () => `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                  DIVINE PIPELINE — v4.0
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    help: () => `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DIVINE PIPELINE v4.1 — gates are real
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  ${'BAND'.padEnd(12)} ${'WORDS'.padEnd(10)} ${'OPERATION'}
-  ─────────────────────────────────────────────────────────
-  ${'✈️ Hermes'.padEnd(12)} ${'1-3'.padEnd(10)} ${'Word pairs/triplets'}
-  ${'☀️ Apollo'.padEnd(12)} ${'4-7'.padEnd(10)} ${'Syntax validation'}
-  ${'🔥 Hephaestus'.padEnd(12)} ${'8-15'.padEnd(10)} ${'Grammar gate (S-V-O)'}
-  ${'🌾 Demeter'.padEnd(12)} ${'16-31'.padEnd(10)} ${'Phrase growth'}
-  ${'🌊 Poseidon'.padEnd(12)} ${'32-127'.padEnd(10)} ${'THE GAP'}
-  ${'🦉 Athena'.padEnd(12)} ${'128-255'.padEnd(10)} ${'Wisdom gate (70%)'}
-  ${'⚡ Zeus'.padEnd(12)} ${'256-511'.padEnd(10)} ${'Thunder synthesis'}
+BAND         WORDS    GATE
+─────────────────────────────────────────────────
+✈️  Hermes    1–3      seed
+☀️  Apollo    4–7      syntax
+🔥  Hephaestus 8–15   S-V-O (REAL — rejects chain)
+🌾  Demeter   16–31   phrase growth
+🌊  Poseidon  32–127  depth expansion
+🦉  Athena    128–255 wisdom score ≥ 70% (REAL)
+⚡  Zeus      256–511 thunder synthesis (hard cap)
 
-📝 COMMANDS:
-  help          - Show this message
-  clear         - Clear terminal output
-  stats         - Show database statistics
-  list          - Show recent entries
-  random        - Get random entry
-  add <label>: <body> - Add a new entry
+Athena scores: lex density | abstract nouns |
+               sentence count | purity | length
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💫 Evolution runs continuously. Athena judges at 70%. Zeus caps at 511 words.
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
-    
-    clear: () => { document.getElementById('output').innerHTML = ''; return null; },
-    
-    stats: async () => {
-        let output = `📊 Database Statistics\n\n`;
-        for (const band of BAND_ORDER) {
-            const info = DIVINE_BANDS[band];
-            const { count } = await db.from(info.table).select('*', { count: 'exact', head: true });
-            output += `${info.icon} ${info.name.padEnd(10)} ${count || 0} entries\n`;
-        }
-        return output;
+COMMANDS:
+  help           show this
+  clear          clear output
+  pause          pause evolution
+  resume         resume evolution
+  stats          session stats
+  add <label>: <body>   add entry to hoard
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+
+    clear:  () => { document.getElementById('output').innerHTML = ''; return null; },
+    pause:  () => { pauseEvolution(); return '⏸ Evolution paused.'; },
+    resume: () => {
+        if (!evolutionActive) { startEvolution(); return '▶ Evolution resumed.'; }
+        return 'Already running.';
     },
-    
-    list: async () => {
-        let output = `📋 Recent Entries:\n\n`;
-        for (const band of BAND_ORDER) {
-            const info = DIVINE_BANDS[band];
-            const { data } = await db.from(info.table).select('label, body').limit(3);
-            if (data && data.length) {
-                output += `${info.icon} ${info.name}:\n`;
-                data.forEach(e => output += `   - ${e.label}\n`);
-            }
-        }
-        return output;
+
+    stats: () => {
+        return `📊 Session Stats
+  Completed chains : ${chainStats.runs}
+  Hephaestus rejects: ${chainStats.hepRejects}
+  Athena rejects   : ${chainStats.athenaRejects}
+  Current band     : ${BAND_ORDER[currentBandIndex] || 'idle'}`;
     },
-    
-    random: async () => {
-        const bands = [...BAND_ORDER];
-        const randomBand = bands[Math.floor(Math.random() * bands.length)];
-        const info = DIVINE_BANDS[randomBand];
-        const { data } = await db.from(info.table).select('label, body').limit(1);
-        if (data && data[0]) return `${info.icon} Random Entry:\nLabel: ${data[0].label}\nBody: ${data[0].body}`;
-        return 'No entries found.';
-    },
-    
+
     add: async (args, fullInput) => {
         const match = fullInput.match(/^add\s+([^:]+):\s*(.+)$/i);
         if (!match) return 'Usage: add <label>: <body>';
-        
-        const label = match[1].trim();
-        const body = match[2].trim();
+
+        const label     = match[1].trim();
+        const body      = match[2].trim();
         const wordCount = body.split(/\s+/).length;
-        const band = getBandFromWordCount(wordCount);
-        const bandInfo = DIVINE_BANDS[band];
-        
+        const band      = getBandFromWordCount(wordCount);
+        const bandInfo  = DIVINE_BANDS[band];
+
+        // Gate check for Hephaestus-band manual entries
+        if (band === 'hephaestus') {
+            const check = hephaestusGate({ body });
+            if (!check.passedGate) {
+                return `🔥 Hephaestus rejects "${label}" — no S-V-O structure.`;
+            }
+        }
+
+        // Gate check for Athena/Zeus-band manual entries
         if (band === 'athena' || band === 'zeus') {
             const check = athenaGate({ body });
             if (!check.passedGate) {
-                return `🦉 Athena rejects entry for ${bandInfo.name} band.\n   Score: ${check.wisdomScore}% (need 70%)\n   "${check.body.substring(0, 100)}..."`;
+                return `🦉 Athena rejects "${label}" — score ${check.wisdomScore}% (need 70%).\n` +
+                       `   ${check.breakdown.A} | ${check.breakdown.B} | ${check.breakdown.C} | ${check.breakdown.D} | ${check.breakdown.E}`;
             }
         }
-        
+
         const { error } = await db.from(bandInfo.table).insert({
             label, body, word_count: wordCount,
             created_at: new Date().toISOString()
         });
-        
+
         if (error) return `Error: ${error.message}`;
-        return `✓ "${label}" claimed by ${bandInfo.icon} ${bandInfo.name} — ${wordCount} words`;
+        return `✓ "${label}" → ${bandInfo.icon} ${bandInfo.name} [${wordCount}w]`;
     }
 };
 
@@ -708,77 +870,82 @@ const commands = {
 // ============================================================
 async function processCommand(input) {
     if (!input.trim()) return;
-    
     awakePulseCount = 0;
     updateCounter();
-    
+
     const parts = input.trim().split(/\s+/);
-    const cmd = parts[0].toLowerCase();
-    const args = parts.slice(1);
-    
+    const cmd   = parts[0].toLowerCase();
+    const args  = parts.slice(1);
+
     if (cmd === 'add') {
         const result = await commands.add(args, input);
         if (result) printLine(result);
         return;
     }
-    
+
     if (commands[cmd]) {
         const result = await commands[cmd](args);
         if (result) printLine(result);
     } else {
-        printLine(`Unknown command: ${cmd}. Type 'help' for available commands.`);
+        printLine(`Unknown: "${cmd}" — type help`);
     }
 }
 
 // ============================================================
-// INITIALIZATION
+// INIT
 // ============================================================
 window.addEventListener('DOMContentLoaded', async () => {
     const input = document.getElementById('command');
-    
+
     if (!window.supabase) {
-        printLine('ERROR: Supabase client not loaded');
+        printLine('ERROR: Supabase not loaded.');
         return;
     }
-    
+
     db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    
-    printLine('Kairos Terminal v4.0 — Divine Pipeline');
-    printLine('✓ Connected to Supabase');
-    printLine('✓ 7 Tables | 7 Gods | 511 Word Cap');
-    printLine('✓ Evolution: Hermes → Apollo → Hephaestus → Demeter → Poseidon → Athena → Zeus');
+
+    // Boot message
+    printLine('⚡ KAIROS TERMINAL v4.1 — Divine Pipeline');
+    printLine('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'system');
+    printLine('✓ Supabase connected', 'system');
+    printLine('✓ 7 Gods | 7 Tables | 511 word hard cap', 'system');
+    printLine('✓ Hephaestus gate: genuine S-V-O check', 'system');
+    printLine('✓ Athena gate: lex density + abstract nouns + purity', 'system');
+    printLine('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'system');
     printLine('');
-    printLine('Try: help | add ealdforn: The ancient one carries wisdom');
+    printLine('type help to see commands. evolution starting…', 'system');
     printLine('');
-    
+
     startEvolution();
     startAwakePulses();
-    
+
+    // Input handling
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
-            const val = input.value;
-            if (val.trim()) {
-                printLine(`> ${val}`);
+            const val = input.value.trim();
+            if (val) {
+                printLine(`➜ ${val}`, 'system');
                 processCommand(val);
                 commandHistory.push(val);
                 historyIndex = commandHistory.length;
             }
             input.value = '';
         }
-        
         if (e.key === 'ArrowUp') {
             e.preventDefault();
             if (historyIndex > 0) { historyIndex--; input.value = commandHistory[historyIndex]; }
         }
-        
         if (e.key === 'ArrowDown') {
             e.preventDefault();
-            if (historyIndex < commandHistory.length - 1) { historyIndex++; input.value = commandHistory[historyIndex]; }
-            else if (historyIndex === commandHistory.length - 1) { historyIndex++; input.value = ''; }
+            if (historyIndex < commandHistory.length - 1) {
+                historyIndex++; input.value = commandHistory[historyIndex];
+            } else {
+                historyIndex = commandHistory.length; input.value = '';
+            }
         }
     });
-    
+
     input.focus();
 });
 </script>
