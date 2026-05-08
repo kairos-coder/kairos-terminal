@@ -3,1001 +3,891 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Kairos Terminal · Resonance · v4.7</title>
+    <title>KairosDB · Terminal · Operator</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap');
+
+        :root {
+            --void:    #040608;
+            --deep:    #060810;
+            --surface: #0d1220;
+            --border:  #141e2e;
+            --mist:    #2a3a4e;
+            --pale:    #c8d8e8;
+            --dim:     #3a4e62;
+            --gold:    #c8943a;
+            --signal:  #d4b84a;
+
+            /* God colors */
+            --hermes:     #d4956a;
+            --apollo:     #c9a84c;
+            --hephaestus: #c07040;
+            --demeter:    #6b8e23;
+            --poseidon:   #2a7a9a;
+            --athena:     #7a6a9a;
+            --zeus:       #9a8ac0;
+            --aphrodite:  #b05870;
+            --ares:       #c0382a;
+            --artemis:    #5a8050;
+            --dionysus:   #8a4080;
+            --hera:       #5a7aaa;
+
+            --ok:   #27ae60;
+            --warn: #d4a017;
+            --err:  #c0392b;
+
+            --font: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            background: radial-gradient(ellipse at 15% 25%, #080b10 0%, #020406 100%);
+            background: var(--void);
+            font-family: var(--font);
             min-height: 100vh;
-            display: flex; align-items: center; justify-content: center;
-            font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             padding: 1rem;
         }
-        .terminal {
-            background-color: #080b11;
-            border: 1px solid #1e2535;
-            border-radius: 10px;
-            width: 100%; max-width: 860px;
-            height: 92vh; min-height: 580px;
-            display: flex; flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 0 60px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.03);
-        }
-        .terminal-header {
-            padding: 0.6rem 1rem;
-            background: #050709;
-            border-bottom: 1px solid #151c28;
-            display: flex; justify-content: space-between; align-items: center;
-            flex-wrap: wrap; gap: 0.4rem;
-        }
-        .badge { color: #5a7a90; font-size: 0.65rem; letter-spacing: 0.05em; }
-        .spectrum { display: flex; gap: 0.25rem; align-items: center; }
-        .spectrum-dot {
-            width: 8px; height: 8px; border-radius: 2px;
-            opacity: 0.18; transition: opacity 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .spectrum-dot.active   { opacity: 1; transform: scale(1.35); box-shadow: 0 0 7px currentColor; }
-        .spectrum-dot.saved    { opacity: 1; transform: scale(1.2);  box-shadow: 0 0 10px currentColor; }
-        .spectrum-dot.rejected { opacity: 1; background: #c0392b !important; box-shadow: 0 0 10px #c0392b; animation: dotShake 0.35s ease; }
-        .spectrum-dot.duped    { opacity: 1; background: #d4a017 !important; box-shadow: 0 0 10px #d4a017; }
-        @keyframes dotShake { 0%,100%{transform:scale(1.35) translateX(0)} 30%{transform:scale(1.35) translateX(-3px)} 70%{transform:scale(1.35) translateX(3px)} }
-        .status { display: flex; align-items: center; gap: 0.45rem; color: #4a5e72; font-size: 0.62rem; }
-        .led { width: 7px; height: 7px; border-radius: 50%; background: #27ae60; box-shadow: 0 0 5px #27ae60; animation: ledPulse 2.4s infinite; }
-        .led.dreaming { background: #7d3c98; box-shadow: 0 0 5px #7d3c98; }
-        .led.saving   { background: #d4a017; box-shadow: 0 0 5px #d4a017; }
-        @keyframes ledPulse { 0%,100%{opacity:0.45} 50%{opacity:1} }
-        .counter { font-size: 0.6rem; background: #0f141e; padding: 0.15rem 0.4rem; border-radius: 10px; color: #3a4e62; }
-        .session-tag { font-size: 0.58rem; background: #0a0f18; padding: 0.1rem 0.4rem; border-radius: 8px; color: #2a3e52; font-family: monospace; }
 
-        .output {
-            flex: 1; overflow-y: auto;
-            padding: 0.85rem 1rem;
-            font-size: 0.8rem; line-height: 1.65;
-            color: #c8d8e8; background: #060810;
+        .terminal {
+            width: 100%;
+            max-width: 900px;
+            height: 94vh;
+            min-height: 600px;
+            background: var(--deep);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 0 80px rgba(0,0,0,0.9), 0 0 1px rgba(200,148,58,0.1);
+        }
+
+        /* ── HEADER ── */
+        .t-header {
+            background: var(--void);
+            border-bottom: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            flex-shrink: 0;
+        }
+
+        .t-badge {
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            color: var(--gold);
+            text-transform: uppercase;
+        }
+
+        .god-dots {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .god-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 2px;
+            opacity: 0.15;
+            transition: opacity 0.3s, transform 0.3s, box-shadow 0.3s;
+            cursor: default;
+        }
+        .god-dot.active  { opacity: 1; transform: scale(1.4); box-shadow: 0 0 8px currentColor; }
+        .god-dot.ok      { opacity: 0.8; }
+        .god-dot.warn    { opacity: 1; box-shadow: 0 0 6px var(--warn); }
+        .god-dot.err     { opacity: 1; box-shadow: 0 0 6px var(--err); }
+
+        .t-status {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.58rem;
+            color: var(--dim);
+        }
+
+        .led {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--ok);
+            box-shadow: 0 0 5px var(--ok);
+            animation: pulse 2.5s infinite;
+        }
+        .led.busy   { background: var(--warn); box-shadow: 0 0 5px var(--warn); animation: none; }
+        .led.error  { background: var(--err);  box-shadow: 0 0 5px var(--err);  animation: none; }
+        @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+        .db-badge {
+            font-size: 0.52rem;
+            background: var(--surface);
+            padding: 0.1rem 0.5rem;
+            border-radius: 8px;
+            color: var(--dim);
+            border: 1px solid var(--border);
+        }
+        .db-badge.live { color: var(--ok); border-color: rgba(39,174,96,0.3); }
+
+        /* ── DOMAIN BAR ── */
+        .domain-bar {
+            background: var(--void);
+            border-bottom: 1px solid var(--border);
+            padding: 0.35rem 1rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        .domain-pill {
+            font-size: 0.48rem;
+            letter-spacing: 1px;
+            padding: 0.15rem 0.5rem;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            color: var(--dim);
+            transition: all 0.3s;
+            cursor: default;
+        }
+        .domain-pill.loaded {
+            opacity: 1;
+            border-color: currentColor;
+            opacity: 0.6;
+        }
+        .domain-pill.hungry {
+            opacity: 1;
+            border-color: currentColor;
+            box-shadow: 0 0 6px currentColor;
+            animation: hungerPulse 2s infinite;
+        }
+        @keyframes hungerPulse { 0%,100%{opacity:0.7} 50%{opacity:1} }
+
+        /* ── OUTPUT ── */
+        .t-output {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.8rem 1rem;
+            font-size: 0.76rem;
+            line-height: 1.7;
+            color: var(--pale);
+            background: var(--deep);
             scroll-behavior: smooth;
         }
-        .output::-webkit-scrollbar { width: 4px; }
-        .output::-webkit-scrollbar-thumb { background: #1e2535; border-radius: 2px; }
-        .output div {
-            white-space: pre-wrap; word-break: break-word;
-            margin-bottom: 0.1rem; animation: lineIn 0.18s ease-out;
-        }
-        @keyframes lineIn { from{opacity:0;transform:translateX(-3px)} to{opacity:1;transform:translateX(0)} }
+        .t-output::-webkit-scrollbar { width: 3px; }
+        .t-output::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-        .band-hermes     { color: #d4956a; border-left: 2px solid #d4956a; padding-left: 0.5rem; }
-        .band-apollo     { color: #c9a84c; border-left: 2px solid #c9a84c; padding-left: 0.5rem; }
-        .band-hephaestus { color: #b84a00; border-left: 2px solid #b84a00; padding-left: 0.5rem; }
-        .band-demeter    { color: #6b8e23; border-left: 2px solid #6b8e23; padding-left: 0.5rem; }
-        .band-poseidon   { color: #2a5e8a; border-left: 2px solid #2a5e8a; padding-left: 0.5rem; }
-        .band-athena     { color: #7a3a9a; border-left: 2px solid #7a3a9a; padding-left: 0.5rem; }
-        .band-zeus       { color: #b39ddb; border-left: 2px solid #7e57c2; padding-left: 0.5rem; }
-        .zeus-full {
-            color: #c8b8f0; border-left: 3px solid #7e57c2; padding-left: 0.6rem;
-            margin: 0.25rem 0 0.5rem 0; font-style: italic; line-height: 1.8;
-            animation: thunderFlash 0.7s ease-out;
+        .t-output div {
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-bottom: 0.08rem;
+            animation: lineIn 0.15s ease-out;
         }
-        @keyframes thunderFlash { 0%{text-shadow:none} 35%{text-shadow:0 0 20px #9b59b6,0 0 40px #d4af37;color:#ffe082} 100%{text-shadow:none;color:#c8b8f0} }
-        .dream { opacity: 0.7; font-style: italic; color: #9c8de0; border-left: 2px solid #3d2e6e; padding-left: 0.5rem; }
-        .sys    { color: #2e3f52; }
-        .sysdim { color: #1e2a38; }
-        .gate-pass { color: #1e8449; border-left: 2px solid #1e8449; padding-left: 0.5rem; }
-        .gate-fail { color: #922b21; border-left: 2px solid #922b21; padding-left: 0.5rem; animation: lineShake 0.3s ease; }
-        .gate-dupe { color: #b8860b; border-left: 2px solid #b8860b; padding-left: 0.5rem; }
-        @keyframes lineShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
-        .demeter-markup { border-left: 2px solid #6b8e23; padding-left: 0.5rem; margin: 0.2rem 0; font-size: 0.72rem; }
-        .demeter-health-high { color: #6b8e23; }
-        .demeter-health-mid  { color: #d45500; }
-        .demeter-health-low  { color: #922b21; }
-        .chain-open  { color: #1a3a52; border-left: 1px solid #1a3a52; padding-left: 0.5rem; font-size: 0.7rem; }
-        .chain-save  { color: #1e4a2e; border-left: 1px solid #1e4a2e; padding-left: 0.5rem; font-size: 0.7rem; }
-        .chain-dupe  { color: #4a3a00; border-left: 1px solid #4a3a00; padding-left: 0.5rem; font-size: 0.7rem; }
-        .bias-line   { color: #3d2e6e; border-left: 1px solid #3d2e6e; padding-left: 0.5rem; font-size: 0.68rem; font-style: italic; }
+        @keyframes lineIn { from{opacity:0;transform:translateX(-2px)} to{opacity:1;transform:translateX(0)} }
 
-        .input-line {
-            display: flex; align-items: center; gap: 0.45rem;
-            background: #040608; border-top: 1px solid #111820;
-            padding: 0.6rem 1rem;
+        /* Line styles */
+        .l-sys    { color: var(--dim); }
+        .l-dim    { color: var(--mist); }
+        .l-ok     { color: var(--ok);   border-left: 2px solid var(--ok);   padding-left: 0.5rem; }
+        .l-warn   { color: var(--warn); border-left: 2px solid var(--warn); padding-left: 0.5rem; }
+        .l-err    { color: var(--err);  border-left: 2px solid var(--err);  padding-left: 0.5rem; }
+        .l-gold   { color: var(--gold); }
+        .l-signal { color: var(--signal); border-left: 2px solid var(--signal); padding-left: 0.5rem; }
+
+        .l-hermes     { color: var(--hermes);     border-left: 2px solid var(--hermes);     padding-left: 0.5rem; }
+        .l-apollo     { color: var(--apollo);     border-left: 2px solid var(--apollo);     padding-left: 0.5rem; }
+        .l-hephaestus { color: var(--hephaestus); border-left: 2px solid var(--hephaestus); padding-left: 0.5rem; }
+        .l-demeter    { color: var(--demeter);    border-left: 2px solid var(--demeter);    padding-left: 0.5rem; }
+        .l-poseidon   { color: var(--poseidon);   border-left: 2px solid var(--poseidon);   padding-left: 0.5rem; }
+        .l-athena     { color: var(--athena);     border-left: 2px solid var(--athena);     padding-left: 0.5rem; }
+        .l-zeus       { color: var(--zeus);       border-left: 2px solid var(--zeus);       padding-left: 0.5rem; }
+        .l-aphrodite  { color: var(--aphrodite);  border-left: 2px solid var(--aphrodite);  padding-left: 0.5rem; }
+        .l-ares       { color: var(--ares);       border-left: 2px solid var(--ares);       padding-left: 0.5rem; }
+        .l-artemis    { color: var(--artemis);    border-left: 2px solid var(--artemis);    padding-left: 0.5rem; }
+        .l-dionysus   { color: var(--dionysus);   border-left: 2px solid var(--dionysus);   padding-left: 0.5rem; }
+        .l-hera       { color: var(--hera);       border-left: 2px solid var(--hera);       padding-left: 0.5rem; }
+
+        /* ── INPUT ── */
+        .t-input-row {
+            background: var(--void);
+            border-top: 1px solid var(--border);
+            padding: 0.55rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-shrink: 0;
         }
-        .prompt { color: #4a7a9b; font-weight: 700; font-size: 0.85rem; }
-        #command {
-            flex: 1; background: transparent; border: none;
-            color: #ddeeff; font-family: inherit;
-            font-size: 0.82rem; outline: none; caret-color: #4a7a9b;
+
+        .t-prompt { color: var(--gold); font-weight: 700; font-size: 0.82rem; }
+
+        #cmd {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--pale);
+            font-family: var(--font);
+            font-size: 0.78rem;
+            outline: none;
+            caret-color: var(--gold);
         }
-        .footer {
-            background: #030508; font-size: 0.58rem; padding: 0.25rem 1rem;
-            color: #1e2a38; border-top: 1px solid #0d1220;
-            display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.3rem;
+        #cmd::placeholder { color: var(--mist); }
+
+        /* ── FOOTER ── */
+        .t-footer {
+            background: var(--void);
+            border-top: 1px solid var(--border);
+            padding: 0.2rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.5rem;
+            color: var(--mist);
+            flex-shrink: 0;
         }
-        @media (max-width:600px) { .output{font-size:0.72rem;padding:0.7rem 0.8rem} .input-line{padding:0.5rem 0.8rem} }
+
+        /* ── PIPELINE METER ── */
+        .pipeline-row {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.62rem;
+            color: var(--dim);
+            padding: 0.2rem 0;
+        }
+        .p-bar-bg {
+            flex: 1;
+            height: 3px;
+            background: var(--surface);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .p-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        @media (max-width: 600px) {
+            .t-output { font-size: 0.68rem; padding: 0.6rem 0.8rem; }
+            .t-input-row { padding: 0.45rem 0.8rem; }
+        }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="terminal">
-    <div class="terminal-header">
-        <span class="badge">⚡ KAIROS · RESONANCE v4.7</span>
-        <div class="spectrum" id="spectrumDots">
-            <div class="spectrum-dot" style="background:#d4956a" title="hermes"></div>
-            <div class="spectrum-dot" style="background:#c9a84c" title="apollo"></div>
-            <div class="spectrum-dot" style="background:#b84a00" title="hephaestus"></div>
-            <div class="spectrum-dot" style="background:#6b8e23" title="demeter"></div>
-            <div class="spectrum-dot" style="background:#2a5e8a" title="poseidon"></div>
-            <div class="spectrum-dot" style="background:#7a3a9a" title="athena"></div>
-            <div class="spectrum-dot" style="background:#7e57c2" title="zeus"></div>
+
+    <!-- HEADER -->
+    <div class="t-header">
+        <span class="t-badge">⚡ KairosDB · Terminal</span>
+        <div class="god-dots" id="godDots">
+            <div class="god-dot" style="color:var(--hermes);background:var(--hermes)"     title="hermes"></div>
+            <div class="god-dot" style="color:var(--apollo);background:var(--apollo)"     title="apollo"></div>
+            <div class="god-dot" style="color:var(--hephaestus);background:var(--hephaestus)" title="hephaestus"></div>
+            <div class="god-dot" style="color:var(--demeter);background:var(--demeter)"   title="demeter"></div>
+            <div class="god-dot" style="color:var(--poseidon);background:var(--poseidon)" title="poseidon"></div>
+            <div class="god-dot" style="color:var(--athena);background:var(--athena)"     title="athena"></div>
+            <div class="god-dot" style="color:var(--zeus);background:var(--zeus)"         title="zeus"></div>
+            <div class="god-dot" style="color:var(--aphrodite);background:var(--aphrodite)" title="aphrodite"></div>
+            <div class="god-dot" style="color:var(--ares);background:var(--ares)"         title="ares"></div>
+            <div class="god-dot" style="color:var(--artemis);background:var(--artemis)"   title="artemis"></div>
+            <div class="god-dot" style="color:var(--dionysus);background:var(--dionysus)" title="dionysus"></div>
+            <div class="god-dot" style="color:var(--hera);background:var(--hera)"         title="hera"></div>
         </div>
-        <div class="status">
-            <span class="led" id="statusLed"></span>
-            <span id="stateLabel">AWAKE</span>
-            <span class="counter" id="counter">0/30</span>
-            <span class="session-tag" id="sessionTag">—</span>
+        <div class="t-status">
+            <div class="led" id="statusLed"></div>
+            <span id="statusLabel">IDLE</span>
+            <span class="db-badge" id="dbBadge">connecting…</span>
         </div>
     </div>
 
-    <div id="output" class="output"></div>
+    <!-- DOMAIN BAR -->
+    <div class="domain-bar" id="domainBar">
+        <span class="domain-pill" style="color:var(--signal)"     data-domain="signal">⚡ signal —</span>
+        <span class="domain-pill" style="color:var(--aphrodite)"  data-domain="love">💗 love —</span>
+        <span class="domain-pill" style="color:var(--ares)"       data-domain="war">⚔️ war —</span>
+        <span class="domain-pill" style="color:var(--apollo)"     data-domain="light">☀️ light —</span>
+        <span class="domain-pill" style="color:var(--demeter)"    data-domain="farm">🌾 farm —</span>
+        <span class="domain-pill" style="color:var(--hephaestus)" data-domain="forge">🔨 forge —</span>
+        <span class="domain-pill" style="color:var(--hera)"       data-domain="crown">👑 crown —</span>
+        <span class="domain-pill" style="color:var(--poseidon)"   data-domain="tide">🌊 tide —</span>
+        <span class="domain-pill" style="color:var(--athena)"     data-domain="wisdom">🦉 wisdom —</span>
+        <span class="domain-pill" style="color:var(--zeus)"       data-domain="storm">🌩️ storm —</span>
+        <span class="domain-pill" style="color:var(--artemis)"    data-domain="wild">🏹 wild —</span>
+        <span class="domain-pill" style="color:var(--dionysus)"   data-domain="vine">🍇 vine —</span>
+    </div>
 
-    <div class="input-line">
-        <span class="prompt">➜</span>
-        <input type="text" id="command"
-               placeholder="help · resonance · state · chain <id> · seed <words>"
+    <!-- OUTPUT -->
+    <div id="output" class="t-output"></div>
+
+    <!-- INPUT -->
+    <div class="t-input-row">
+        <span class="t-prompt">➜</span>
+        <input type="text" id="cmd"
+               placeholder="help · run hermes · status · tokens · pairs · prompts · images"
                autofocus spellcheck="false" autocomplete="off">
     </div>
 
-    <div class="footer">
-        <span>🎵 Pass 1→2→3→4→5→6→7→loop · Resonance scoring · State manager</span>
-        <span>v4.7 · resonance</span>
+    <!-- FOOTER -->
+    <div class="t-footer">
+        <span>tokens → pairs → svo_triplets → prompts → images · KairosDB v1</span>
+        <span id="footerStats">—</span>
     </div>
+
 </div>
 
 <script>
-// ============================================================
-// KAIROS TERMINAL v4.7 — RESONANCE STATE MANAGER
-// Full chain saves · Session IDs · Dedup+mutate · Dream bias
-// Resonance scoring · State export/import
-// ============================================================
+// ════════════════════════════════════════════════════════════
+// KAIROSDB TERMINAL · OPERATOR COCKPIT
+// Reads: tokens, pairs, svo_triplets, prompts, images
+// Triggers: all god edge functions via Supabase
+// ════════════════════════════════════════════════════════════
 
-const SUPABASE_URL     = 'https://kzcucjcyxybypncbdbws.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw';
+const SB_URL  = 'https://kzcucjcyxybypncbdbws.supabase.co';
+const SB_KEY  = 'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw';
+const EDGE    = `${SB_URL}/functions/v1`;
 
 let db = null;
-let commandHistory = [], historyIndex = -1;
+let cmdHistory = [], histIdx = -1;
+let busy = false;
 
-// ============================================================
-// KAIROS STATE MANAGER — The central nervous system
-// ============================================================
-const KairosState = {
-    // Session tracking
-    activeSession: null,
-    sessionHistory: [],
-    
-    // Resonance metrics
-    chainResonance: {},      // sessionId → resonance score
-    bandResonance: { hermes:0, apollo:0, hephaestus:0, demeter:0, poseidon:0, athena:0, zeus:0 },
-    clusterResonance: { decay:0, light:0, memory:0, motion:0, void:0, forge:0, myth:0 },
-    
-    // Quality metrics
-    avgWisdomScore: 0,
-    totalEntries: 0,
-    duplicateRate: 0,
-    mutationRate: 0,
-    totalDuplicates: 0,
-    totalMutations: 0,
-    totalSaves: 0,
-    
-    // Temporal
-    startTime: Date.now(),
-    lastPassComplete: null,
-    cyclesCompleted: 0,
-    
-    // Live counters
-    currentPass: 1,
-    currentCluster: null,
-    dreamBias: [],
-    
-    // Helper methods
-    recordSave(band, isMutated, wisdomScore) {
-        this.totalSaves++;
-        if (isMutated) this.totalMutations++;
-        if (this.bandResonance[band] !== undefined) {
-            this.bandResonance[band] = Math.round(0.7 * this.bandResonance[band] + 0.3 * 75);
-        }
-        this.avgWisdomScore = Math.round(0.95 * this.avgWisdomScore + 0.05 * (wisdomScore || 75));
-        this.updateDerivedRates();
-    },
-    
-    recordDuplicate() {
-        this.totalDuplicates++;
-        this.updateDerivedRates();
-    },
-    
-    updateDerivedRates() {
-        const total = this.totalSaves + this.totalDuplicates;
-        if (total > 0) {
-            this.duplicateRate = Math.round((this.totalDuplicates / total) * 100);
-            this.mutationRate = Math.round((this.totalMutations / this.totalSaves) * 100);
-        }
-    },
-    
-    recordChainResonance(sessionId, score) {
-        this.chainResonance[sessionId] = score;
-        this.sessionHistory.unshift({ id: sessionId, resonance: score, timestamp: Date.now() });
-        if (this.sessionHistory.length > 50) this.sessionHistory.pop();
-        this.totalEntries = Object.keys(this.chainResonance).length;
-    },
-    
-    updateClusterResonance(cluster, score) {
-        if (this.clusterResonance[cluster] !== undefined) {
-            this.clusterResonance[cluster] = Math.round(0.7 * this.clusterResonance[cluster] + 0.3 * score);
-        }
-    },
-    
-    completeCycle() {
-        this.cyclesCompleted++;
-        this.lastPassComplete = Date.now();
-    },
-    
-    getResonanceReport() {
-        const sortedChains = Object.entries(this.chainResonance)
-            .sort((a,b) => b[1] - a[1])
-            .slice(0, 5);
-        
-        const avgResonance = Object.values(this.chainResonance).length > 0 
-            ? Math.round(Object.values(this.chainResonance).reduce((a,b) => a+b, 0) / Object.values(this.chainResonance).length)
-            : 0;
-        
-        return { avgResonance, topChains: sortedChains };
-    },
-    
-    exportState() {
-        return {
-            activeSession: this.activeSession,
-            chainResonance: this.chainResonance,
-            bandResonance: this.bandResonance,
-            clusterResonance: this.clusterResonance,
-            avgWisdomScore: this.avgWisdomScore,
-            totalEntries: this.totalEntries,
-            duplicateRate: this.duplicateRate,
-            mutationRate: this.mutationRate,
-            cyclesCompleted: this.cyclesCompleted,
-            startTime: this.startTime,
-            sessionHistory: this.sessionHistory.slice(0, 20)
-        };
-    },
-    
-    importState(state) {
-        if (state.chainResonance) this.chainResonance = state.chainResonance;
-        if (state.bandResonance) this.bandResonance = state.bandResonance;
-        if (state.clusterResonance) this.clusterResonance = state.clusterResonance;
-        if (state.avgWisdomScore) this.avgWisdomScore = state.avgWisdomScore;
-        if (state.totalEntries) this.totalEntries = state.totalEntries;
-        if (state.duplicateRate) this.duplicateRate = state.duplicateRate;
-        if (state.mutationRate) this.mutationRate = state.mutationRate;
-        if (state.cyclesCompleted) this.cyclesCompleted = state.cyclesCompleted;
-        if (state.sessionHistory) this.sessionHistory = state.sessionHistory;
-        this.updateDerivedRates();
-        return true;
-    }
+// ── GOD REGISTRY ──
+const GODS = {
+    hermes:     { icon:'⚡', color:'var(--hermes)',     edge:'hermes-extract',     domain:'signal',  desc:'Token courier · hunter/gatherer' },
+    apollo:     { icon:'☀️', color:'var(--apollo)',     edge:'apollo-score',       domain:'light',   desc:'LLM gate · concept scorer' },
+    hephaestus: { icon:'🔨', color:'var(--hephaestus)', edge:'hephaestus-forge',   domain:'forge',   desc:'SVO forger · sentence builder' },
+    demeter:    { icon:'🌾', color:'var(--demeter)',    edge:'demeter-cultivate',  domain:'farm',    desc:'Pair cultivator · affinity scorer' },
+    poseidon:   { icon:'🌊', color:'var(--poseidon)',   edge:'poseidon-flow',      domain:'tide',    desc:'Prompt synthesizer · flow weaver' },
+    athena:     { icon:'🦉', color:'var(--athena)',     edge:'athena-audit',       domain:'wisdom',  desc:'Quality auditor · wisdom gate' },
+    zeus:       { icon:'🌩️', color:'var(--zeus)',       edge:'zeus-complete',      domain:'storm',   desc:'Canonizer · final decree' },
+    aphrodite:  { icon:'💗', color:'var(--aphrodite)',  edge:'aphrodite-pair',     domain:'love',    desc:'Pair weaver · attraction scorer' },
+    ares:       { icon:'⚔️', color:'var(--ares)',       edge:'ares-stress',        domain:'war',     desc:'Stress tester · conflict engine' },
+    artemis:    { icon:'🏹', color:'var(--artemis)',    edge:'artemis-hunt',       domain:'wild',    desc:'Domain hunter · wild tracker' },
+    dionysus:   { icon:'🍇', color:'var(--dionysus)',   edge:'dionysus-release',   domain:'vine',    desc:'Chaos injector · creative disruptor' },
+    hera:       { icon:'👑', color:'var(--hera)',       edge:'hera-curate',        domain:'crown',   desc:'Image curator · final crown' }
 };
 
-// Resonance score calculation for a chain
-function calculateChainResonance(sessionId, entries) {
-    let score = 0;
-    
-    // Completion bonus (25 pts)
-    if (entries.zeus) score += 25;
-    
-    // Wisdom bonus from Athena (25 pts)
-    if (entries.athena?.wisdomScore) score += entries.athena.wisdomScore * 0.25;
-    
-    // Lexical density (15 pts)
-    if (entries.zeus) {
-        const unique = new Set(entries.zeus.body.toLowerCase().split(/\s+/));
-        const density = unique.size / entries.zeus.body.split(/\s+/).length;
-        score += density * 15;
-    }
-    
-    // Drift penalty (10 pts) — staying in cluster is good
-    const drift = entries.driftLevel || 20;
-    score += (100 - Math.min(100, drift)) * 0.10;
-    
-    // Demeter's health (10 pts)
-    if (entries.demeter?.healthScore) score += entries.demeter.healthScore * 0.10;
-    
-    // Word count bonus (15 pts) — longer chains are more developed
-    if (entries.zeus?.wordCount) {
-        const wordBonus = Math.min(15, entries.zeus.wordCount / 4);
-        score += wordBonus;
-    }
-    
-    return Math.min(100, Math.round(score));
-}
+const DOMAINS = ['signal','love','war','light','farm','forge','crown','tide','wisdom','storm','wild','vine'];
+const GOD_ORDER = Object.keys(GODS);
 
-// ============================================================
-// BAND CONFIGURATION
-// ============================================================
-const DIVINE_BANDS = {
-    hermes:     { index:1, icon:'✈️',  name:'Hermes',     table:'hermes_entries',     min:1,  max:2,  target:2,  time:1618, color:'#d4956a' },
-    apollo:     { index:2, icon:'☀️',  name:'Apollo',     table:'apollo_entries',     min:3,  max:5,  target:4,  time:2427, color:'#c9a84c' },
-    hephaestus: { index:3, icon:'🔥',  name:'Hephaestus', table:'hephaestus_entries', min:6,  max:10, target:8,  time:3236, color:'#b84a00' },
-    demeter:    { index:4, icon:'🌾',  name:'Demeter',    table:'demeter_entries',    min:11, max:20, target:15, time:4045, color:'#6b8e23' },
-    poseidon:   { index:5, icon:'🌊',  name:'Poseidon',   table:'poseidon_entries',   min:21, max:35, target:28, time:4854, color:'#2a5e8a' },
-    athena:     { index:6, icon:'🦉',  name:'Athena',     table:'athena_entries',     min:36, max:50, target:43, time:5663, color:'#7a3a9a', threshold:70 },
-    zeus:       { index:7, icon:'⚡',  name:'Zeus',       table:'zeus_entries',       min:51, max:64, target:57, time:6472, color:'#7e57c2' }
+// ── PIPELINE TABLES ──
+const PIPELINE = [
+    { name:'tokens',      icon:'⚡', color:'var(--hermes)',  desc:'atomic concepts' },
+    { name:'pairs',       icon:'💗', color:'var(--aphrodite)', desc:'token relationships' },
+    { name:'svo_triplets',icon:'🔨', color:'var(--hephaestus)', desc:'mythogenic sentences' },
+    { name:'prompts',     icon:'🌊', color:'var(--poseidon)', desc:'image prompt output' },
+    { name:'images',      icon:'👑', color:'var(--hera)',    desc:'crowned images' }
+];
+
+// ── DOMAIN SEED SETS (for Hermes seeding) ──
+const DOMAIN_SEEDS = {
+    signal:  'message signal swift trade path word code travel cross courier speed threshold',
+    love:    'love heart desire beauty grace tenderness embrace longing bloom devotion soul charm',
+    war:     'battle strike clash blade shield rage force conquest enemy siege weapon army',
+    wisdom:  'truth mind pattern knowledge logic reason insight clarity thought learning vision design',
+    storm:   'thunder lightning decree command order rule wrath judgment authority law dominion sky',
+    tide:    'ocean wave current depth flow sea flood salt surge abyss drift water',
+    wild:    'hunt beast moon forest fang claw track chase instinct roam predator wilderness',
+    vine:    'ecstasy dance madness release wine frenzy ritual trance abandon revelry intoxication chaos',
+    forge:   'hammer fire anvil craft iron shape creation tool metal build smelt temper',
+    farm:    'seed harvest soil grain crop cycle growth field earth cultivate season root',
+    crown:   'legacy oath throne lineage memory law reign blood honor dynasty covenant stone',
+    light:   'dawn harmony prophecy song balance golden lyre oracle radiance healing clarity truth'
 };
-const BAND_ORDER = ['hermes','apollo','hephaestus','demeter','poseidon','athena','zeus'];
 
-function getBandFromWordCount(n) {
-    if (n <= 2)  return 'hermes';
-    if (n <= 5)  return 'apollo';
-    if (n <= 10) return 'hephaestus';
-    if (n <= 20) return 'demeter';
-    if (n <= 35) return 'poseidon';
-    if (n <= 50) return 'athena';
-    return 'zeus';
+// ── UTILITIES ──
+function out(text, cls = null) {
+    const el = document.getElementById('output');
+    const div = document.createElement('div');
+    div.textContent = text;
+    if (cls) div.className = cls;
+    el.appendChild(div);
+    el.scrollTop = el.scrollHeight;
 }
 
-// ============================================================
-// SEMANTIC CLUSTERS
-// ============================================================
-const CLUSTERS = {
-    decay:  { words: ['ash','bone','rust','dust','hollow','ruin','rot','silt','husk','marrow','splinter','char','residue','fragment','remnant'] },
-    light:  { words: ['ember','threshold','dawn','signal','pulse','gleam','flicker','ignite','radiance','luminous','kindle','aureole','beacon','solstice','corona'] },
-    memory: { words: ['echo','thread','trace','residue','mark','imprint','fossil','sediment','inscription','archive','relic','refrain','palimpsest','vestige','scar'] },
-    motion: { words: ['tide','current','drift','spiral','return','surge','oscillate','cycle','recede','cascade','flux','eddy','undulate','momentum','vortex'] },
-    void:   { words: ['silence','gap','absence','depth','between','hollow','abyss','lacuna','suspension','interval','pause','null','negative','liminal','recess'] },
-    forge:  { words: ['iron','hammer','anvil','temper','alloy','slag','crucible','weld','smelt','quench','mold','cast','strike','fuse','reforge'] },
-    myth:   { words: ['serpent','raven','phoenix','wolf','oracle','augur','sovereign','exile','wanderer','threshold','labyrinth','augury','omen','sigil','totem'] }
-};
-const CLUSTER_NAMES = Object.keys(CLUSTERS);
-const SUBJECTS = ['The raven','The forge','An ember','The river','A threshold','The dreamer','The watcher','A blade','The tide','Memory','Silence','The ancient flame','A root system','The void','Dust','Iron','The gate','The oracle','A hollow bone','The current','Residue','The exile'];
-const VERBS = ['carries','holds','breaks','remembers','forgets','burns','returns','rises','fractures','echoes','consumes','reveals','dissolves','endures','recedes','descends','illuminates','devours','persists','collapses','accumulates','drifts','spirals','marks','inscribes','tempers','suspends'];
-const ABSTRACT = ['consciousness','impermanence','recursion','entropy','emergence','paradox','resonance','dissolution','transcendence','fragmentation','memory','longing','threshold','void','fate','wisdom','chaos','silence','truth','absence','oscillation','continuity','rupture','interval','sediment','trace'];
+function sep(char = '─', len = 52) { out(char.repeat(len), 'l-dim'); }
 
-function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-function randN(arr, n) { return [...arr].sort(() => 0.5 - Math.random()).slice(0, n); }
-function wc(str) { return str.trim().split(/\s+/).filter(Boolean).length; }
-function cap(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
-
-// Dream bias state
-let dreamBias = [];
-let forcedSeed = null;
-let activeCluster = null;
-
-function getClusterPool(clusterName) {
-    const base = [...(CLUSTERS[clusterName]?.words || CLUSTERS.void.words)];
-    if (dreamBias.length) {
-        dreamBias.forEach(w => { base.push(w); base.push(w); });
-    }
-    return base;
+function setStatus(state) {
+    const led = document.getElementById('statusLed');
+    const label = document.getElementById('statusLabel');
+    led.className = 'led';
+    if (state === 'busy') { led.classList.add('busy'); label.textContent = 'RUNNING'; busy = true; }
+    else if (state === 'error') { led.classList.add('error'); label.textContent = 'ERROR'; busy = false; }
+    else { label.textContent = 'IDLE'; busy = false; }
 }
 
-// Deduplication
-const OVERLAP_THRESHOLD = 0.60;
-const DEDUP_SAMPLE = 50;
-
-async function fetchRecentBodies(table) {
-    try {
-        const { data } = await db.from(table).select('body').order('created_at', { ascending: false }).limit(DEDUP_SAMPLE);
-        return (data || []).map(e => e.body);
-    } catch(_) { return []; }
+function dotForGod(name) {
+    const idx = GOD_ORDER.indexOf(name);
+    return document.querySelectorAll('.god-dot')[idx];
 }
 
-function wordOverlap(a, b) {
-    const setA = new Set(a.toLowerCase().split(/\s+/).filter(Boolean));
-    const setB = new Set(b.toLowerCase().split(/\s+/).filter(Boolean));
-    if (!setA.size || !setB.size) return 0;
-    let inter = 0;
-    setA.forEach(w => { if (setB.has(w)) inter++; });
-    return inter / Math.max(setA.size, setB.size);
-}
-
-function isDuplicate(candidate, existing) {
-    for (const body of existing) {
-        if (body.trim().toLowerCase() === candidate.trim().toLowerCase()) return true;
-        if (wordOverlap(candidate, body) > OVERLAP_THRESHOLD) return true;
-    }
-    return false;
-}
-
-function mutateBody(body, clusterName, bandMin, bandMax) {
-    const pool = CLUSTERS[clusterName]?.words || CLUSTERS.void.words;
-    let words = body.split(/\s+/);
-    const swapCount = Math.min(2, words.length);
-    for (let i = 0; i < swapCount; i++) {
-        const idx = Math.floor(Math.random() * words.length);
-        words[idx] = rand(pool);
-    }
-    while (words.length < bandMin) words.push(rand(pool));
-    words = words.slice(0, bandMax);
-    let mutated = words.join(' ');
-    if (!/[.!?]$/.test(mutated) && body.endsWith('.')) mutated += '.';
-    return mutated;
-}
-
-// Dot helpers
-function dotForBand(band) {
-    const idx = BAND_ORDER.indexOf(band);
-    return document.querySelectorAll('.spectrum-dot')[idx];
-}
-function setDotState(band, state) {
-    const dot = dotForBand(band);
+function setDot(name, state) {
+    const dot = dotForGod(name);
     if (!dot) return;
-    dot.className = 'spectrum-dot';
+    dot.className = 'god-dot';
     if (state) dot.classList.add(state);
 }
+
 function resetDots() {
-    document.querySelectorAll('.spectrum-dot').forEach(d => { d.className = 'spectrum-dot'; });
+    document.querySelectorAll('.god-dot').forEach(d => d.className = 'god-dot');
 }
 
-function setSessionTag(id) {
-    const el = document.getElementById('sessionTag');
-    if (el) el.textContent = id ? `#${id}` : '—';
-}
-
-// Demeter markup
-function demeterMarkup(input, cluster) {
-    const words = input.body.split(/\s+/);
-    const text = input.body;
-    const uniqueWords = new Set(words.map(w => w.toLowerCase().replace(/[^a-z]/g,'')));
-    const lexicalDensity = uniqueWords.size / words.length;
-    let abstractCount = 0;
-    ABSTRACT.forEach(ab => { if (text.toLowerCase().includes(ab)) abstractCount++; });
-    abstractCount = Math.min(abstractCount, 5);
-    const sentenceCount = (text.match(/[.!?]/g) || []).length;
-    let purityScore = 1.0;
-    const trigrams = [];
-    for (let i = 0; i < words.length - 2; i++) {
-        const tri = words.slice(i,i+3).join(' ').toLowerCase();
-        if (trigrams.includes(tri)) purityScore -= 0.1;
-        trigrams.push(tri);
-    }
-    purityScore = Math.max(0, purityScore);
-    const clusterWords = CLUSTERS[cluster]?.words || CLUSTERS.void.words;
-    let clusterAlignment = 0;
-    clusterWords.forEach(cw => { if (text.toLowerCase().includes(cw)) clusterAlignment++; });
-    clusterAlignment = Math.min(1, clusterAlignment / 5);
-    let driftLevel = 0;
-    CLUSTER_NAMES.filter(c => c !== cluster).forEach(oc => {
-        CLUSTERS[oc].words.forEach(ow => { if (text.toLowerCase().includes(ow)) driftLevel += 0.02; });
+// ── EDGE FUNCTION CALLER ──
+async function callEdge(fnName, payload) {
+    const res = await fetch(`${EDGE}/${fnName}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
     });
-    driftLevel = Math.min(1, driftLevel);
-    const healthScore = Math.round((lexicalDensity*25) + (abstractCount*5) + (Math.min(sentenceCount,4)*6.25) + (purityScore*25) + (clusterAlignment*25) - (driftLevel*20));
-    return { lexicalDensity: Math.round(lexicalDensity*100), abstractCount, sentenceCount, purityScore: Math.round(purityScore*100), clusterAlignment: Math.round(clusterAlignment*100), driftLevel: Math.round(driftLevel*100), healthScore: Math.max(0, Math.min(100, healthScore)) };
+    if (!res.ok) throw new Error(`${fnName} returned ${res.status}`);
+    return await res.json();
 }
 
-function demeterTransform(input, cluster, scores) {
-    let body = input.body; let words = body.split(/\s+/);
-    if (scores.driftLevel > 60 || scores.purityScore < 50) {
-        body = body.replace(/(\b\w+\b)(?: \1)+/gi, '$1').replace(/\b(very|really|quite|extremely|incredibly)\b/gi,'');
-        words = body.split(/\s+/);
-        if (words.length > 30) words = words.slice(0, Math.floor(words.length*0.8));
-        body = words.join(' ');
-    }
-    if (scores.lexicalDensity < 40 || scores.abstractCount < 1) {
-        const cw = CLUSTERS[cluster]?.words || CLUSTERS.void.words;
-        const anchors = ['ash','stone','water','fire','wind','earth','void'];
-        const temporal = ['before','after','during','while','as','when'];
-        if (scores.abstractCount < 1 && cw[0]) body += ` ${cw[0]} and ${cw[1]||cw[0]}`;
-        if (scores.lexicalDensity < 40) body += ` like ${anchors[Math.floor(Math.random()*anchors.length)]}`;
-        if (body.split(/\s+/).length < 15) body += ` ${temporal[Math.floor(Math.random()*temporal.length)]} the ${cluster} returns`;
-        words = body.split(/\s+/);
-    }
-    if (scores.clusterAlignment < 40) { const sw = rand(CLUSTERS[cluster]?.words||CLUSTERS.void.words); body = `${cap(sw)} ${body}`; words = body.split(/\s+/); }
-    if (scores.driftLevel > 50) { const an = CLUSTERS[cluster]?.words[0]||'threshold'; body = `${cap(an)} carries ${body.toLowerCase()}`; words = body.split(/\s+/); }
-    if (!/[.!?]$/.test(body)) body += '.';
-    return { body, wordCount: words.length, pruningApplied: scores.driftLevel>60||scores.purityScore<50, expansionApplied: scores.lexicalDensity<40||scores.abstractCount<1, steeringApplied: scores.clusterAlignment<40, driftCorrectionApplied: scores.driftLevel>50 };
+// ── DB STATS ──
+async function getTableCount(table, filter = null) {
+    let q = db.from(table).select('*', { count: 'exact', head: true });
+    if (filter) q = q.eq(filter.col, filter.val);
+    const { count } = await q;
+    return count || 0;
 }
 
-// Single band evolution
-async function evolveSingleBand(band, previousResult) {
-    const result = { body:'', wordCount:0, passedGate:true, scores:null, transformed:null };
-    const pool = getClusterPool(activeCluster);
-
-    if (band === 'hermes') {
-        let words;
-        if (forcedSeed) {
-            words = forcedSeed.split(/\s+/).slice(0,2);
-            forcedSeed = null;
-        } else {
-            const count = 1 + Math.floor(Math.random()*2);
-            words = randN(pool, count);
-        }
-        if (dreamBias.length) {
-            printLine(`   ✦ dream bias active: [${dreamBias.join(', ')}] blended into pool`, 'bias-line');
-            dreamBias = [];
-        }
-        return { body: words.join(' '), wordCount: words.length, passedGate: true };
+async function getDomainCounts() {
+    const counts = {};
+    for (const domain of DOMAINS) {
+        counts[domain] = await getTableCount('tokens', { col: 'domain', val: domain });
     }
-    if (band === 'apollo') {
-        const seedWords = previousResult.body.split(/\s+/);
-        const needed = 3 + Math.floor(Math.random()*3);
-        const extra = randN(pool.filter(w => !seedWords.includes(w)), needed - seedWords.length);
-        const words = [...seedWords, ...extra].slice(0, needed);
-        words[0] = cap(words[0]);
-        return { body: words.join(' '), wordCount: words.length, passedGate: true };
-    }
-    if (band === 'hephaestus') {
-        const subject = rand(SUBJECTS);
-        const verb = rand(VERBS);
-        const obj = [...previousResult.body.split(/\s+/), ...randN(pool, 3)].slice(0,5).join(' ').toLowerCase();
-        const raw = `${subject} ${verb} ${obj}`;
-        const words = raw.split(/\s+/).slice(0,10);
-        const body = words.join(' ') + '.';
-        const passed = /^[A-Z]/.test(body) && VERBS.some(v => body.includes(` ${v} `)) && words.length >= 6;
-        return { body, wordCount: words.length, passedGate: passed };
-    }
-    if (band === 'demeter') {
-        let body = previousResult.body;
-        let words = body.split(/\s+/);
-        while (words.length < 11) { body = `${body} ${rand(pool)}`; words = body.split(/\s+/); }
-        const scores = demeterMarkup({ body }, activeCluster);
-        const transformed = demeterTransform({ body }, activeCluster, scores);
-        body = transformed.body.split(/\s+/).slice(0,20).join(' ');
-        if (!/[.!?]$/.test(body)) body += '.';
-        return { body, wordCount: wc(body), passedGate: true, scores, transformed };
-    }
-    if (band === 'poseidon') {
-        let body = previousResult.body.replace(/\.$/, '');
-        let words = body.split(/\s+/);
-        const ex = [
-            () => `${rand(SUBJECTS)} ${rand(VERBS)} what ${rand(pool)} cannot contain.`,
-            () => `In the space between ${rand(pool)} and ${rand(pool)}, ${rand(ABSTRACT)} accumulates.`,
-            () => `Where ${rand(pool)} meets ${rand(pool)}, something ${rand(VERBS)}.`,
-            () => `${rand(pool)} against ${rand(ABSTRACT)} — ${rand(SUBJECTS).toLowerCase()} ${rand(VERBS)}.`
-        ];
-        while (words.length < 21) { body = `${body} ${rand(ex)()}`; words = body.split(/\s+/); }
-        body = words.slice(0,35).join(' ');
-        if (!/[.!?]$/.test(body)) body += '.';
-        return { body, wordCount: wc(body), passedGate: true };
-    }
-    if (band === 'athena') {
-        let body = previousResult.body.replace(/[.!?]$/, '');
-        let words = body.split(/\s+/);
-        while (words.length < 36) {
-            body = `${body} ${rand(SUBJECTS)} ${rand(VERBS)} ${rand(pool)} — ${rand(ABSTRACT)} without ${rand(pool)}.`;
-            words = body.split(/\s+/);
-        }
-        words = words.slice(0,50); body = words.join(' ');
-        if (!/[.!?—]$/.test(body)) body += '.';
-        const unique = new Set(words.map(w => w.toLowerCase().replace(/[^a-z]/g,''))).size;
-        const lexDen = unique / words.length;
-        const absCount = ABSTRACT.filter(a => body.toLowerCase().includes(a)).length;
-        const sentCount = (body.match(/[.!?]/g)||[]).length;
-        const trigrams = []; let hasPadding = false;
-        for (let i=0; i<words.length-2; i++) {
-            const tri = words.slice(i,i+3).join(' ').toLowerCase();
-            if (trigrams.includes(tri)) { hasPadding=true; break; }
-            trigrams.push(tri);
-        }
-        let score = 0;
-        if (lexDen >= 0.72) score += 25;
-        if (absCount >= 1) score += 25;
-        if (sentCount >= 2) score += 25;
-        if (!hasPadding) score += 25;
-        return { body, wordCount: words.length, wisdomScore: score, passedGate: score >= 70 };
-    }
-    if (band === 'zeus') {
-        let body = previousResult.body.replace(/[.!?—]$/, '');
-        let words = body.split(/\s+/);
-        while (words.length < 51) {
-            body = `${body} ${rand(SUBJECTS)} ${rand(VERBS)} what ${rand(ABSTRACT)} conceals — ${rand(pool)}, ${rand(pool)}, the ${rand(ABSTRACT)} of ${rand(pool)}.`;
-            words = body.split(/\s+/);
-        }
-        body = words.slice(0,64).join(' ');
-        if (!/[.!?—]$/.test(body)) body += '.';
-        return { body, wordCount: wc(body), passedGate: true };
-    }
-    return result;
+    return counts;
 }
 
-// Save with dedup
-async function saveWithDedup(band, result, passNum, sessionId) {
-    const bandInfo = DIVINE_BANDS[band];
-    const recent = await fetchRecentBodies(bandInfo.table);
-    let body = result.body;
-    let attempt = 1;
-    let isMutated = false;
-    let wisdomScore = result.wisdomScore || 0;
-
-    if (isDuplicate(body, recent)) {
-        printLine(`   ⟳ near-duplicate detected in ${bandInfo.name} · mutating…`, 'gate-dupe');
-        setDotState(band, 'duped');
-        KairosState.recordDuplicate();
-        body = mutateBody(body, activeCluster, bandInfo.min, bandInfo.max);
-        attempt = 2;
-        isMutated = true;
-        if (isDuplicate(body, recent)) {
-            printLine(`   ✗ mutation also duplicate · skipping ${bandInfo.name} save`, 'chain-dupe');
-            setDotState(band, 'rejected');
-            return false;
-        }
-    }
-
-    const label = `pass_${passNum}_${band}_${Date.now()}_${sessionId}`;
-    const { error } = await db.from(bandInfo.table).insert({ label, body, word_count: wc(body), created_at: new Date().toISOString() });
-
-    if (error) {
-        printLine(`   ⚠ save failed (${bandInfo.name}): ${error.message}`, 'sys');
-        setDotState(band, 'rejected');
-        return false;
-    }
-
-    const attemptNote = isMutated ? ' (mutated)' : '';
-    printLine(`   ✓ ${bandInfo.icon} ${bandInfo.name} saved${attemptNote} · session #${sessionId}`, 'chain-save');
-    setDotState(band, 'saved');
-    KairosState.recordSave(band, isMutated, wisdomScore);
-    return true;
+async function updateDomainBar(counts) {
+    const pills = document.querySelectorAll('.domain-pill');
+    const max = Math.max(...Object.values(counts), 1);
+    pills.forEach(pill => {
+        const domain = pill.dataset.domain;
+        const n = counts[domain] || 0;
+        pill.textContent = pill.textContent.split(' ').slice(0, 2).join(' ') + ` ${n}`;
+        pill.className = 'domain-pill';
+        if (n === 0) pill.classList.add('hungry');
+        else if (n < max * 0.3) pill.classList.add('hungry');
+        else pill.classList.add('loaded');
+    });
 }
 
-// Evolution state
-let evolutionActive = true;
-let currentPass = 1;
-const MAX_PASS = 7;
-let passTimer = null;
+async function refreshStats() {
+    try {
+        const counts = await getDomainCounts();
+        const total = Object.values(counts).reduce((a, b) => a + b, 0);
+        updateDomainBar(counts);
+        document.getElementById('footerStats').textContent =
+            `tokens: ${total} · ${new Date().toLocaleTimeString()}`;
+        document.getElementById('dbBadge').textContent = `db live ✓`;
+        document.getElementById('dbBadge').className = 'db-badge live';
+    } catch (e) {
+        document.getElementById('dbBadge').textContent = `db err`;
+    }
+}
 
-// Run a full pass
-async function runPass() {
-    if (!evolutionActive) return;
+// ── COMMANDS ──
+const CMDS = {
 
-    resetDots();
-    const sessionId = crypto.randomUUID().slice(0,8);
-    const godsInPass = BAND_ORDER.slice(0, currentPass);
-    const passIcons = godsInPass.map(b => DIVINE_BANDS[b].icon).join(' → ');
+    help: async () => {
+        out('');
+        out('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'l-dim');
+        out('  KAIROSDB TERMINAL · OPERATOR COMMANDS', 'l-gold');
+        out('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'l-dim');
+        out('');
+        out('  GOD COMMANDS:', 'l-sys');
+        out('  run <god>          — trigger a god\'s edge function', 'l-sys');
+        out('  run hermes rss     — hermes RSS scrape cycle', 'l-sys');
+        out('  run hermes pubmed  — hermes PubMed cycle', 'l-sys');
+        out('  run hermes seed    — seed all 12 domains', 'l-sys');
+        out('  run hermes all     — full hermes cycle', 'l-sys');
+        out('  gods               — list all gods + status', 'l-sys');
+        out('');
+        out('  PIPELINE COMMANDS:', 'l-sys');
+        out('  status             — full system status', 'l-sys');
+        out('  tokens [domain]    — show recent tokens', 'l-sys');
+        out('  tokens hunger      — show domain hunger map', 'l-sys');
+        out('  pairs [n]          — show recent pairs', 'l-sys');
+        out('  triplets [n]       — show recent SVO triplets', 'l-sys');
+        out('  prompts [n]        — show recent prompts', 'l-sys');
+        out('  images [n]         — show recent images', 'l-sys');
+        out('  pipeline           — full pipeline flow counts', 'l-sys');
+        out('');
+        out('  SYSTEM:', 'l-sys');
+        out('  clear · help · refresh', 'l-sys');
+        out('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'l-dim');
+        out('');
+    },
 
-    setSessionTag(sessionId);
-    KairosState.activeSession = sessionId;
-    printLine(`\n🎵 PASS ${currentPass}/${MAX_PASS} · #${sessionId} · ${passIcons}`, 'sys');
-
-    if (!activeCluster || currentPass === 1) activeCluster = rand(CLUSTER_NAMES);
-    printLine(`   cluster: ${activeCluster}`, 'chain-open');
-
-    let previousResult = null;
-    const chainEntries = { driftLevel: 0, demeter: null, athena: null, zeus: null };
-
-    for (const band of godsInPass) {
-        const bandInfo = DIVINE_BANDS[band];
-        setDotState(band, 'active');
-
-        const result = await evolveSingleBand(band, previousResult);
-        previousResult = result;
-
-        if (band === 'demeter' && result.scores) {
-            chainEntries.demeter = result.scores;
-            chainEntries.driftLevel = result.scores.driftLevel;
-            const s = result.scores, t = result.transformed;
-            const hc = s.healthScore >= 70 ? 'demeter-health-high' : (s.healthScore >= 40 ? 'demeter-health-mid' : 'demeter-health-low');
-            printLine(`🌾 markup: health ${s.healthScore}% · lex ${s.lexicalDensity}% · abs ${s.abstractCount} · purity ${s.purityScore}% · align ${s.clusterAlignment}% · drift ${s.driftLevel}%`, 'demeter-markup');
-            if (t.pruningApplied) printLine(`   ✂️ pruned`, 'sysdim');
-            if (t.expansionApplied) printLine(`   🌱 expanded`, 'sysdim');
-            if (t.steeringApplied) printLine(`   🧭 steered`, 'sysdim');
-            if (t.driftCorrectionApplied) printLine(`   ⚓ drift corrected`, 'sysdim');
+    gods: async () => {
+        out('');
+        sep();
+        out('  THE PANTHEON', 'l-gold');
+        sep();
+        for (const [name, g] of Object.entries(GODS)) {
+            out(`  ${g.icon}  ${name.padEnd(12)} ${g.desc}`, `l-${name}`);
         }
+        sep();
+        out('');
+    },
 
-        if (band === 'hephaestus' && !result.passedGate) {
-            printLine(`🔥 Hephaestus rejects · pass abandoned`, 'gate-fail');
-            setDotState(band, 'rejected');
-            break;
-        }
-        if (band === 'athena') {
-            chainEntries.athena = result;
-            if (!result.passedGate) {
-                printLine(`🦉 Athena rejects ${result.wisdomScore}% (need 70%) · zeus skipped`, 'gate-fail');
-                setDotState(band, 'rejected');
-                break;
+    status: async () => {
+        out('');
+        sep('═');
+        out('  KAIROSDB · SYSTEM STATUS', 'l-gold');
+        sep('═');
+
+        // Pipeline counts
+        out('  PIPELINE', 'l-sys');
+        for (const table of PIPELINE) {
+            setStatus('busy');
+            try {
+                const n = await getTableCount(table.name);
+                const bar = '█'.repeat(Math.min(Math.floor(n / 5), 20)) + '░'.repeat(Math.max(0, 20 - Math.floor(n / 5)));
+                out(`  ${table.icon}  ${table.name.padEnd(14)} ${String(n).padStart(5)}  ${bar}  ${table.desc}`, 'l-sys');
+            } catch(e) {
+                out(`  ${table.icon}  ${table.name.padEnd(14)} error`, 'l-err');
             }
-            printLine(`🦉 Athena accepts ${result.wisdomScore}%`, 'gate-pass');
         }
-        if (band === 'zeus') chainEntries.zeus = result;
+        out('');
 
-        const preview = result.body.substring(0,60) + (result.body.length > 60 ? '…' : '');
-        if (band === 'zeus') {
-            printLine(`${bandInfo.icon} ${bandInfo.name} [${result.wordCount}w]`, band);
-            printLine(result.body, 'zeus-full');
-        } else {
-            printLine(`${bandInfo.icon} ${bandInfo.name} [${result.wordCount}w] "${preview}"`, band);
-        }
-
-        if (result.passedGate) {
-            await saveWithDedup(band, result, currentPass, sessionId);
+        // Domain counts
+        out('  DOMAIN HUNGER MAP', 'l-sys');
+        const counts = await getDomainCounts();
+        const max = Math.max(...Object.values(counts), 1);
+        for (const [domain, n] of Object.entries(counts)) {
+            const pct = Math.round((n / max) * 100);
+            const bar = '█'.repeat(Math.floor(pct / 5)) + '░'.repeat(20 - Math.floor(pct / 5));
+            const hunger = n < max * 0.3 ? ' ← HUNGRY' : '';
+            out(`  ${domain.padEnd(10)} ${String(n).padStart(4)}  ${bar}${hunger}`, n < max * 0.3 ? 'l-warn' : 'l-sys');
         }
 
-        await new Promise(r => setTimeout(r, bandInfo.time));
-    }
+        sep('═');
+        setStatus('idle');
+        out('');
+    },
 
-    // Calculate and store resonance for this chain if Zeus was reached
-    if (chainEntries.zeus) {
-        const resonance = calculateChainResonance(sessionId, chainEntries);
-        KairosState.recordChainResonance(sessionId, resonance);
-        KairosState.updateClusterResonance(activeCluster, resonance);
-        printLine(`   ✦ resonance score: ${resonance}%`, 'bias-line');
-    }
+    run: async (args) => {
+        const godName = args[0]?.toLowerCase();
+        const subCmd  = args[1]?.toLowerCase() || 'default';
 
-    currentPass++;
-    if (currentPass > MAX_PASS) {
-        currentPass = 1;
-        KairosState.completeCycle();
-        printLine(`⟳ CYCLE COMPLETE · new cycle from Pass 1`, 'sys');
-    }
+        if (!godName) { out('usage: run <god> [subcommand]', 'l-warn'); return; }
+        if (!GODS[godName]) { out(`unknown god: ${godName}. try: ${GOD_ORDER.join(', ')}`, 'l-err'); return; }
 
-    passTimer = setTimeout(() => runPass(), 3000);
-}
+        const g = GODS[godName];
+        setStatus('busy');
+        setDot(godName, 'active');
+        out('');
+        out(`  ${g.icon} triggering ${godName} · ${g.edge}…`, `l-${godName}`);
 
-function startPassSystem() {
-    if (passTimer) clearTimeout(passTimer);
-    evolutionActive = true;
-    currentPass = 1;
-    runPass();
-}
-function pausePassSystem() {
-    evolutionActive = false;
-    if (passTimer) clearTimeout(passTimer);
-}
-
-// Dream cycle
-let awakePulseCount = 0, pulseInterval = null, isDreaming = false;
-
-function updateCounter() {
-    const el = document.getElementById('counter');
-    if (el) el.textContent = `${awakePulseCount}/30`;
-}
-function startAwakePulses() {
-    if (pulseInterval) clearInterval(pulseInterval);
-    pulseInterval = setInterval(() => {
-        if (!isDreaming) { awakePulseCount++; updateCounter(); if (awakePulseCount >= 30) enterDream(); }
-    }, 1618);
-}
-
-async function enterDream() {
-    isDreaming = true;
-    pausePassSystem();
-    document.getElementById('statusLed').classList.add('dreaming');
-    document.getElementById('stateLabel').textContent = 'DREAMING';
-    printLine('\n✦ dreaming — reaching into the hoard…', 'dream');
-
-    const tables = ['hermes_entries','apollo_entries','hephaestus_entries','zeus_entries'];
-    let biasWords = [];
-    for (const table of tables) {
         try {
-            const { data } = await db.from(table).select('body,label').limit(20);
-            if (data && data.length > 0) {
-                const entry = data[Math.floor(Math.random()*data.length)];
-                const words = entry.body.split(/\s+/).filter(w => w.length > 3);
-                biasWords = randN(words, Math.min(3, words.length));
-                const cluster = CLUSTER_NAMES.find(c => (entry.label||'').includes(c)) || rand(CLUSTER_NAMES);
-                printLine(`  fragment: "${entry.body.split(/\s+/).slice(0,4).join(' ')}…"`, 'dream');
-                printLine(`  bias words: [${biasWords.join(', ')}] → next cluster pool`, 'dream');
-                if (CLUSTER_NAMES.find(c => (entry.label||'').includes(c))) activeCluster = cluster;
-                break;
+            let payload = {};
+
+            if (godName === 'hermes') {
+                if (subCmd === 'seed') {
+                    const allSeeds = Object.values(DOMAIN_SEEDS).join(' ');
+                    payload = { text: allSeeds, source: 'seed' };
+                    out('  seeding all 12 domains…', 'l-sys');
+                } else if (subCmd === 'rss') {
+                    payload = { action: 'scrape-all', feeds: ['bbc','aljazeera','hn','hn-algolia'], source: 'rss' };
+                    out('  RSS scrape cycle…', 'l-sys');
+                } else if (subCmd === 'pubmed') {
+                    payload = {
+                        action: 'scrape-all',
+                        pubmed_queries: [
+                            'neural network cognition','language model attention',
+                            'consciousness neural correlates','knowledge graph ontology',
+                            'cognitive architecture reasoning','artificial intelligence ethics'
+                        ],
+                        source: 'pubmed'
+                    };
+                    out('  PubMed cycle…', 'l-sys');
+                } else if (subCmd === 'all' || subCmd === 'default') {
+                    payload = {
+                        action: 'scrape-all',
+                        feeds: ['bbc','aljazeera','hn'],
+                        pubmed_queries: ['neural network cognition','consciousness neural correlates','knowledge graph ontology'],
+                        source: 'full-cycle'
+                    };
+                    out('  full cycle (RSS + PubMed)…', 'l-sys');
+                } else {
+                    // treat as raw text seed
+                    payload = { text: args.slice(1).join(' '), source: 'direct' };
+                    out(`  direct text: "${args.slice(1).join(' ')}"`, 'l-sys');
+                }
+            } else {
+                // Generic god trigger — each god's edge handles its own logic
+                payload = { source: 'terminal', trigger: subCmd };
             }
-        } catch(_) {}
-    }
-    dreamBias = biasWords;
-    setTimeout(exitDream, 7000);
-}
 
-function exitDream() {
-    isDreaming = false;
-    awakePulseCount = 0;
-    updateCounter();
-    document.getElementById('statusLed').classList.remove('dreaming');
-    document.getElementById('stateLabel').textContent = 'AWAKE';
-    printLine(`✦ wakes · bias loaded · resuming passes`, 'dream');
-    printLine('', null);
-    startPassSystem();
-}
+            const result = await callEdge(g.edge, payload);
 
-// Print function
-function printLine(text, cls=null) {
-    const output = document.getElementById('output');
-    const line = document.createElement('div');
-    line.textContent = text;
-    const direct = ['gate-pass','gate-fail','gate-dupe','sys','sysdim','dream','zeus-full','demeter-markup','demeter-health-high','demeter-health-mid','demeter-health-low','chain-open','chain-save','chain-dupe','bias-line'];
-    if (cls && direct.includes(cls)) line.classList.add(cls);
-    else if (cls && DIVINE_BANDS[cls]) line.classList.add(`band-${cls}`);
-    output.appendChild(line);
-    output.scrollTop = output.scrollHeight;
-}
+            setDot(godName, 'ok');
+            out(`  ✓ ${godName} complete`, 'l-ok');
 
-// Format resonance bar
-function formatResonanceBar(score, width=8) {
-    const filled = Math.round((score / 100) * width);
-    return '█'.repeat(filled) + '░'.repeat(width - filled);
-}
+            if (result.stored !== undefined)  out(`    tokens stored:   ${result.stored}`, 'l-sys');
+            if (result.dropped !== undefined) out(`    tokens dropped:  ${result.dropped}`, 'l-dim');
+            if (result.novel !== undefined)   out(`    novel words:     ${result.novel}`, 'l-sys');
+            if (result.domains) {
+                const domSummary = Object.entries(result.domains).map(([d,n]) => `${d}:${n}`).join(' · ');
+                out(`    domains → ${domSummary}`, `l-${godName}`);
+            }
+            if (result.error) out(`    ⚠ ${result.error}`, 'l-warn');
 
-// Resonance dashboard
-async function showResonanceDashboard() {
-    const report = KairosState.getResonanceReport();
-    const avgResonance = report.avgResonance;
-    const topChains = report.topChains;
-    
-    let output = `╔════════════════════════════════════════════════════════════════╗\n`;
-    output += `║                    KAIROS RESONANCE DASHBOARD                  ║\n`;
-    output += `╠════════════════════════════════════════════════════════════════╣\n`;
-    
-    // Active chain
-    const activeResonance = KairosState.chainResonance[KairosState.activeSession] || 0;
-    output += `║  🌀 ACTIVE CHAIN     ${KairosState.activeSession || 'none'} · resonance ${activeResonance}% ${formatResonanceBar(activeResonance)} ║\n`;
-    
-    // Top chain
-    if (topChains.length > 0) {
-        const [topId, topScore] = topChains[0];
-        output += `║  🏆 TOP CHAIN        ${topId} · resonance ${topScore}% ${formatResonanceBar(topScore)} ║\n`;
-    }
-    
-    // Averages
-    output += `║  📊 AVG RESONANCE    ${avgResonance}%                                        ║\n`;
-    output += `║  🌿 CYCLES COMPLETE  ${KairosState.cyclesCompleted}                                         ║\n`;
-    output += `║  ✨ TOTAL CHAINS     ${Object.keys(KairosState.chainResonance).length}                                         ║\n`;
-    output += `║  📝 TOTAL ENTRIES    ${KairosState.totalEntries}                                         ║\n`;
-    output += `╠════════════════════════════════════════════════════════════════╣\n`;
-    
-    // Band resonance
-    output += `║  RESONANCE BY BAND:                                            ║\n`;
-    for (const [band, score] of Object.entries(KairosState.bandResonance)) {
-        const info = DIVINE_BANDS[band];
-        output += `║    ${info.icon} ${info.name.padEnd(8)} ${String(score).padStart(3)}% ${formatResonanceBar(score)} ║\n`;
-    }
-    
-    output += `╠════════════════════════════════════════════════════════════════╣\n`;
-    
-    // Cluster resonance
-    output += `║  RESONANCE BY CLUSTER:                                          ║\n`;
-    for (const [cluster, score] of Object.entries(KairosState.clusterResonance)) {
-        output += `║    ${cluster.padEnd(8)} ${String(score).padStart(3)}% ${formatResonanceBar(score)} ║\n`;
-    }
-    
-    output += `╠════════════════════════════════════════════════════════════════╣\n`;
-    
-    // Quality metrics
-    output += `║  🦉 AVG WISDOM       ${KairosState.avgWisdomScore}%                                        ║\n`;
-    output += `║  🔄 DUPLICATE RATE   ${KairosState.duplicateRate}%                                        ║\n`;
-    output += `║  🧬 MUTATION RATE    ${KairosState.mutationRate}%                                        ║\n`;
-    output += `╚════════════════════════════════════════════════════════════════╝`;
-    
-    return output;
-}
+            await refreshStats();
 
-// Commands
-const KNOWN_COMMANDS = ['help','clear','pause','resume','stats','hoard','view','seed','cycle','chain','bias','resonance','state'];
-
-const commands = {
-    help: () => `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-KAIROS v4.7 · RESONANCE MANAGER
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-RESONANCE COMMANDS:
-  resonance      — show full resonance dashboard
-  resonance top  — show top 5 resonant chains
-  state          — show current state summary
-  state export   — export state as JSON
-  chain <id>     — view full chain lineage
-
-SYSTEM COMMANDS:
-  help · clear · pause · resume · stats
-  hoard · view <band> [n] · seed <words>
-  cycle · bias
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
-    clear: () => { document.getElementById('output').innerHTML=''; return null; },
-    pause: () => { pausePassSystem(); return '⏸ passes paused'; },
-    resume: () => { if (!evolutionActive) { startPassSystem(); return '▶ passes resumed'; } return 'already running'; },
-    bias: () => dreamBias.length ? `✦ active bias: [${dreamBias.join(', ')}]` : `✦ no dream bias active`,
-    stats: async () => {
-        let total = 0;
-        for (const b of BAND_ORDER) { const { count } = await db.from(DIVINE_BANDS[b].table).select('*',{count:'exact',head:true}); total += (count||0); }
-        return `📊 Stats\n  Pass: ${currentPass}/${MAX_PASS} · Cluster: ${activeCluster}\n  Dream bias: [${dreamBias.join(', ')||'none'}]\n  Total entries: ${total}\n  Resonance chains: ${Object.keys(KairosState.chainResonance).length}`;
-    },
-    resonance: async (args) => {
-        if (args[0] === 'top') {
-            const report = KairosState.getResonanceReport();
-            let out = `🏆 TOP 5 RESONANT CHAINS\n`;
-            report.topChains.forEach(([id, score], i) => {
-                out += `  ${i+1}. ${id} · ${score}% ${formatResonanceBar(score)}\n`;
-            });
-            return out;
+        } catch(e) {
+            setDot(godName, 'err');
+            out(`  ✗ ${godName} error: ${e.message}`, 'l-err');
         }
-        return await showResonanceDashboard();
+
+        setStatus('idle');
+        out('');
     },
-    state: (args) => {
-        if (args[0] === 'export') {
-            return `📋 STATE EXPORT\n${JSON.stringify(KairosState.exportState(), null, 2)}`;
+
+    tokens: async (args) => {
+        const filter = args[0]?.toLowerCase();
+        out('');
+
+        if (filter === 'hunger') {
+            out('  DOMAIN HUNGER MAP', 'l-gold');
+            sep();
+            const counts = await getDomainCounts();
+            const max = Math.max(...Object.values(counts), 1);
+            const sorted = Object.entries(counts).sort((a,b) => a[1] - b[1]);
+            for (const [domain, n] of sorted) {
+                const pct = Math.round((n / max) * 100);
+                const bar = '█'.repeat(Math.floor(pct / 4)) + '░'.repeat(25 - Math.floor(pct / 4));
+                const tag = n === 0 ? ' ◄ STARVING' : n < max * 0.3 ? ' ◄ hungry' : '';
+                out(`  ${domain.padEnd(10)} ${String(n).padStart(4)}  ${bar}${tag}`,
+                    n === 0 ? 'l-err' : n < max * 0.3 ? 'l-warn' : 'l-sys');
+            }
+            sep();
+            out('  run hermes seed to feed hungry domains', 'l-dim');
+            out('');
+            return;
         }
-        const state = KairosState.exportState();
-        return `📊 STATE SUMMARY\n  Active session: ${state.activeSession}\n  Chains recorded: ${Object.keys(state.chainResonance).length}\n  Cycles: ${state.cyclesCompleted}\n  Avg wisdom: ${state.avgWisdomScore}%\n  Duplicate rate: ${state.duplicateRate}%\n  Mutation rate: ${state.mutationRate}%\n  Type "state export" for full JSON`;
+
+        const limit = 15;
+        let q = db.from('tokens').select('body,domain,word_type,score,source,created_at')
+                   .order('created_at', { ascending: false }).limit(limit);
+        if (filter && DOMAINS.includes(filter)) q = q.eq('domain', filter);
+
+        const { data, error } = await q;
+        if (error) { out(`error: ${error.message}`, 'l-err'); return; }
+        if (!data?.length) { out('  no tokens found', 'l-dim'); return; }
+
+        out(`  RECENT TOKENS${filter ? ' · ' + filter.toUpperCase() : ''}`, 'l-gold');
+        sep();
+        data.forEach(t => {
+            out(`  ${t.body.padEnd(20)} ${t.domain.padEnd(10)} ${t.word_type}  score:${t.score}  ${t.source}`, `l-${t.domain === 'signal' ? 'hermes' : t.domain}`);
+        });
+        sep();
+        out('');
     },
-    hoard: async () => {
-        let out = `🗄 hoard\n`;
-        for (const b of BAND_ORDER) {
-            const info = DIVINE_BANDS[b];
-            const { count } = await db.from(info.table).select('*',{count:'exact',head:true});
-            const n = count||0; const bar = '█'.repeat(Math.min(n,30));
-            out += `  ${info.icon} ${info.name.padEnd(12)} ${String(n).padStart(3)}  ${bar}\n`;
+
+    pairs: async (args) => {
+        const n = Math.min(parseInt(args[0]) || 8, 20);
+        out('');
+        const { data, error } = await db.from('pairs')
+            .select('token_a_body,token_b_body,domain_a,domain_b,affinity_score,tension_score,pair_type')
+            .order('created_at', { ascending: false }).limit(n);
+        if (error) { out(`error: ${error.message}`, 'l-err'); return; }
+        if (!data?.length) { out('  no pairs found', 'l-dim'); return; }
+        out(`  RECENT PAIRS · ${data.length}`, 'l-gold');
+        sep();
+        data.forEach(p => {
+            out(`  ${p.token_a_body.padEnd(14)} × ${p.token_b_body.padEnd(14)} ` +
+                `affinity:${p.affinity_score?.toFixed(1) || '—'} ` +
+                `tension:${p.tension_score?.toFixed(1) || '—'}  [${p.domain_a}×${p.domain_b}]`, 'l-aphrodite');
+        });
+        sep();
+        out('');
+    },
+
+    triplets: async (args) => {
+        const n = Math.min(parseInt(args[0]) || 6, 15);
+        out('');
+        const { data, error } = await db.from('svo_triplets')
+            .select('subject,verb,object,archetypal_family,mythogenic_score,state')
+            .order('created_at', { ascending: false }).limit(n);
+        if (error) { out(`error: ${error.message}`, 'l-err'); return; }
+        if (!data?.length) { out('  no triplets found', 'l-dim'); return; }
+        out(`  RECENT SVO TRIPLETS · ${data.length}`, 'l-gold');
+        sep();
+        data.forEach(t => {
+            out(`  ${t.subject.padEnd(12)} ${t.verb.padEnd(10)} ${t.object.padEnd(12)} ` +
+                `[${t.archetypal_family || '—'}] myth:${t.mythogenic_score || 0}`, 'l-hephaestus');
+        });
+        sep();
+        out('');
+    },
+
+    prompts: async (args) => {
+        const n = Math.min(parseInt(args[0]) || 5, 10);
+        out('');
+        const { data, error } = await db.from('prompts')
+            .select('prompt_text,telos,visual_mood,confidence,status,created_at')
+            .order('created_at', { ascending: false }).limit(n);
+        if (error) { out(`error: ${error.message}`, 'l-err'); return; }
+        if (!data?.length) { out('  no prompts found', 'l-dim'); return; }
+        out(`  RECENT PROMPTS · ${data.length}`, 'l-gold');
+        sep();
+        data.forEach((p, i) => {
+            out(`  [${i+1}] ${p.status} · conf:${p.confidence?.toFixed(2) || '—'} · ${p.visual_mood || '—'}`, 'l-poseidon');
+            out(`       ${p.prompt_text.substring(0, 80)}${p.prompt_text.length > 80 ? '…' : ''}`, 'l-sys');
+        });
+        sep();
+        out('');
+    },
+
+    images: async (args) => {
+        const n = Math.min(parseInt(args[0]) || 5, 10);
+        out('');
+        const { data, error } = await db.from('images')
+            .select('prompt_text,style,score,crowned,status,created_at')
+            .order('created_at', { ascending: false }).limit(n);
+        if (error) { out(`error: ${error.message}`, 'l-err'); return; }
+        if (!data?.length) { out('  no images found', 'l-dim'); return; }
+        out(`  RECENT IMAGES · ${data.length}`, 'l-gold');
+        sep();
+        data.forEach((img, i) => {
+            const crown = img.crowned ? ' 👑' : '';
+            out(`  [${i+1}] score:${img.score} · ${img.status}${crown} · ${img.style || '—'}`, 'l-hera');
+            out(`       ${(img.prompt_text || '—').substring(0, 80)}…`, 'l-sys');
+        });
+        sep();
+        out('');
+    },
+
+    pipeline: async () => {
+        out('');
+        sep('═');
+        out('  PIPELINE FLOW', 'l-gold');
+        sep('═');
+        let prev = null;
+        for (const table of PIPELINE) {
+            const n = await getTableCount(table.name);
+            const pct = prev ? (prev > 0 ? Math.round((n / prev) * 100) : 0) : 100;
+            const arrow = prev !== null ? `  ↓ ${pct}% flow-through` : '';
+            if (arrow) out(arrow, 'l-dim');
+            out(`  ${table.icon}  ${table.name.padEnd(14)} ${String(n).padStart(6)} records   ${table.desc}`, 'l-sys');
+            prev = n;
         }
-        return out;
+        sep('═');
+        out('');
     },
-    view: async (args) => {
-        const band = args[0]?.toLowerCase(); const n = Math.min(parseInt(args[1])||3,10);
-        if (!band || !DIVINE_BANDS[band]) return `usage: view <band> [n]\nbands: ${BAND_ORDER.join(', ')}`;
-        const info = DIVINE_BANDS[band];
-        const { data, error } = await db.from(info.table).select('label,body,word_count').order('created_at',{ascending:false}).limit(n);
-        if (error) return `error: ${error.message}`;
-        if (!data?.length) return `${info.icon} ${info.name} hoard empty`;
-        let out = `${info.icon} ${info.name} · ${data.length} recent\n`;
-        data.forEach((e,i) => { out += `\n[${i+1}] ${e.label} (${e.word_count}w)\n${e.body}\n`; });
-        return out;
+
+    refresh: async () => {
+        out('  refreshing…', 'l-sys');
+        await refreshStats();
+        out('  ✓ refreshed', 'l-ok');
     },
-    chain: async (args) => {
-        const sid = args[0];
-        if (!sid) return `usage: chain <sessionId>`;
-        let out = `🔗 chain #${sid}\n`;
-        for (const b of BAND_ORDER) {
-            const info = DIVINE_BANDS[b];
-            const { data } = await db.from(info.table).select('label,body,word_count').ilike('label', `%_${sid}`).limit(1);
-            if (data?.length) out += `\n${info.icon} ${info.name} [${data[0].word_count}w]\n${data[0].body}\n`;
-        }
-        const resonance = KairosState.chainResonance[sid];
-        if (resonance) out += `\n✨ Resonance: ${resonance}%`;
-        return out;
-    },
-    seed: (args, fullInput) => {
-        const s = fullInput.replace(/^seed\s*/i,'').trim();
-        if (!s) return 'usage: seed <words>';
-        const words = s.split(/\s+/).slice(0,2);
-        forcedSeed = words.join(' ');
-        return `▶ seeded: "${forcedSeed}" · will use on next hermes pass`;
-    },
-    cycle: () => `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🌱 THE SEED CYCLE
-✈️  HERMES      1-2w  · seed + cluster assignment
-☀️  APOLLO      3-5w  · expansion + harmonic clustering
-🔥  HEPHAESTUS  6-10w · structural shaping + gate
-🌾  DEMETER     11-20w· markup + pruning + grounding
-🌊  POSEIDON    21-35w· imagistic expansion + recursion
-🦉  ATHENA      36-50w· wisdom gate (70% threshold)
-⚡  ZEUS        51-64w· canonization + hoard storage
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Resonance: chains are scored (0-100%) based on completion, wisdom, density, and health.
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`
+
+    clear: async () => {
+        document.getElementById('output').innerHTML = '';
+    }
 };
 
-async function processCommand(input) {
+// ── COMMAND PROCESSOR ──
+async function processCmd(input) {
     if (!input.trim()) return;
-    awakePulseCount = 0; updateCounter();
+    if (busy) { out('  terminal busy — wait for current operation', 'l-warn'); return; }
+
     const parts = input.trim().split(/\s+/);
     const cmd = parts[0].toLowerCase();
     const args = parts.slice(1);
-    if (KNOWN_COMMANDS.includes(cmd)) {
-        const result = await commands[cmd](args, input);
-        if (result) printLine(result);
-        return;
+
+    out(`➜ ${input}`, 'l-dim');
+
+    if (CMDS[cmd]) {
+        try {
+            await CMDS[cmd](args, input);
+        } catch(e) {
+            out(`error: ${e.message}`, 'l-err');
+            setStatus('error');
+            setTimeout(() => setStatus('idle'), 2000);
+        }
+    } else {
+        out(`  unknown command: ${cmd}`, 'l-warn');
+        out('  type "help" for available commands', 'l-dim');
     }
-    const n = wc(input.trim()), band = getBandFromWordCount(n), info = DIVINE_BANDS[band];
-    printLine(`   ${n}w · ${info.icon} ${info.name} (${info.min}–${info.max}w) — type "add <label>: ${input.trim()}" to save`, 'sysdim');
 }
 
-// Init
+// ── BOOT ──
 window.addEventListener('DOMContentLoaded', async () => {
-    const input = document.getElementById('command');
-    if (!window.supabase) { printLine('ERROR: Supabase not loaded'); return; }
-    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const input = document.getElementById('cmd');
 
-    printLine('⚡ KAIROS TERMINAL v4.7 — RESONANCE MANAGER', 'sys');
-    printLine('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'sysdim');
-    printLine('Resonance scoring · State manager · Chain lineage', 'sys');
-    printLine('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'sysdim');
-    printLine('');
+    if (!window.supabase) {
+        out('ERROR: Supabase not loaded', 'l-err');
+        return;
+    }
 
-    startPassSystem();
-    startAwakePulses();
+    db = window.supabase.createClient(SB_URL, SB_KEY);
 
-    input.addEventListener('keydown', (e) => {
+    // Boot sequence
+    out('');
+    out('  ⚡ KAIROSDB TERMINAL', 'l-gold');
+    out('  operator cockpit · v1', 'l-dim');
+    out('');
+    out('  connecting to KairosDB…', 'l-sys');
+
+    try {
+        await refreshStats();
+        out('  ✓ database connected', 'l-ok');
+        out('  ✓ 12 domains mapped', 'l-ok');
+        out('  ✓ pipeline tables: tokens · pairs · svo_triplets · prompts · images', 'l-ok');
+    } catch(e) {
+        out(`  ✗ connection failed: ${e.message}`, 'l-err');
+    }
+
+    out('');
+    out('  type "help" for commands · "status" for system overview', 'l-dim');
+    out('  type "run hermes seed" to feed all 12 domains', 'l-dim');
+    out('');
+    sep();
+    out('');
+
+    // Mark active dots for gods with deployed edges
+    ['hermes','apollo','hephaestus'].forEach(g => setDot(g, 'ok'));
+
+    // Auto-refresh every 60s
+    setInterval(refreshStats, 60000);
+
+    // Input handler
+    input.addEventListener('keydown', e => {
         if (e.key === 'Enter') {
             e.preventDefault();
             const val = input.value.trim();
-            if (val) { printLine(`➜ ${val}`, 'sys'); processCommand(val); commandHistory.push(val); historyIndex = commandHistory.length; }
+            if (!val) return;
+            cmdHistory.push(val);
+            histIdx = cmdHistory.length;
             input.value = '';
+            processCmd(val);
         }
-        if (e.key === 'ArrowUp') { e.preventDefault(); if (historyIndex > 0) { historyIndex--; input.value = commandHistory[historyIndex]; } }
-        if (e.key === 'ArrowDown') { e.preventDefault(); if (historyIndex < commandHistory.length-1) { historyIndex++; input.value = commandHistory[historyIndex]; } else { historyIndex = commandHistory.length; input.value = ''; } }
+        if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (histIdx > 0) { histIdx--; input.value = cmdHistory[histIdx]; }
+        }
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (histIdx < cmdHistory.length - 1) { histIdx++; input.value = cmdHistory[histIdx]; }
+            else { histIdx = cmdHistory.length; input.value = ''; }
+        }
+        // Tab autocomplete
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            const partial = input.value.toLowerCase();
+            const allCmds = [...Object.keys(CMDS), ...Object.keys(GODS).map(g => `run ${g}`)];
+            const match = allCmds.find(c => c.startsWith(partial) && c !== partial);
+            if (match) input.value = match;
+        }
     });
+
     input.focus();
 });
 </script>
